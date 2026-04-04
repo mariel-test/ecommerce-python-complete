@@ -1,4 +1,281 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Test Cases — AutomationExercise (14 APIs)</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f5f5f0;
+    color: #1a1a1a;
+    padding: 24px 16px;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #6b6b6b; margin-bottom: 24px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .metric { background: #ebebea; border-radius: 8px; padding: 12px 14px; }
+  .metric-label { font-size: 11px; color: #6b6b6b; margin-bottom: 4px; }
+  .metric-value { font-size: 26px; font-weight: 500; }
+  .metric-sub { font-size: 11px; color: #9c9a92; margin-top: 2px; }
+  .m-red { color: #791F1F; } .m-amber { color: #633806; } .m-green { color: #3B6D11; } .m-blue { color: #0C447C; }
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .tab { padding: 7px 16px; border-radius: 8px; font-size: 13px; cursor: pointer; border: 1px solid #ccc; background: #ebebea; color: #6b6b6b; transition: all .15s; font-family: inherit; }
+  .tab.active { background: #E6F1FB; color: #0C447C; border-color: #378ADD; font-weight: 500; }
+  .tab:hover:not(.active) { background: #fff; }
+  .section-title { font-size: 15px; font-weight: 500; margin-bottom: 10px; }
+  .scroll-table { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; margin-bottom: 20px; background: #fff; border-radius: 8px; overflow: hidden; border: 1px solid #e0e0d8; }
+  th { background: #f5f5f0; padding: 8px 10px; text-align: left; font-size: 11px; font-weight: 500; color: #6b6b6b; border-bottom: 1px solid #e0e0d8; }
+  td { padding: 7px 10px; border-bottom: 1px solid #f0f0e8; vertical-align: top; line-height: 1.5; }
+  tr:hover td { background: #fafaf8; }
+  .badge { display: inline-block; padding: 2px 7px; border-radius: 4px; font-size: 10px; font-weight: 500; white-space: nowrap; }
+  .s1 { background: #FCEBEB; color: #791F1F; }
+  .s2 { background: #FAEEDA; color: #633806; }
+  .s3 { background: #EAF3DE; color: #3B6D11; }
+  .s4 { background: #E6F1FB; color: #0C447C; }
+  .p1 { background: #FCEBEB; color: #791F1F; }
+  .p2 { background: #FAEEDA; color: #633806; }
+  .p3 { background: #EAF3DE; color: #3B6D11; }
+  .p4 { background: #E1F5EE; color: #085041; }
+  .method { display: inline-block; padding: 1px 5px; border-radius: 3px; font-size: 10px; font-weight: 500; }
+  .get { background: #EAF3DE; color: #3B6D11; }
+  .post { background: #E6F1FB; color: #0C447C; }
+  .put { background: #FAEEDA; color: #633806; }
+  .del { background: #FCEBEB; color: #791F1F; }
+  .tc-id { font-family: 'Courier New', monospace; font-size: 10px; color: #9c9a92; white-space: nowrap; }
+  .e2e-flow { background: #f5f5f0; border: 1px solid #e0e0d8; border-radius: 10px; padding: 14px; margin-bottom: 12px; }
+  .e2e-title { font-size: 13px; font-weight: 500; margin-bottom: 8px; }
+  .e2e-steps { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .step-box { padding: 4px 10px; background: #fff; border: 1px solid #e0e0d8; border-radius: 8px; font-size: 11px; color: #6b6b6b; line-height: 1.4; }
+  .step-arrow { color: #9c9a92; font-size: 14px; }
+  .legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 11px; margin-bottom: 14px; color: #6b6b6b; }
+  .legend-item { display: flex; align-items: center; gap: 5px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  @media (max-width: 600px) {
+    .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
 
+<h1>QA Test Cases — AutomationExercise</h1>
+<p class="subtitle">Colección completa · 14 APIs REST · 52 casos de prueba · Camino crítico, alternativo y E2E</p>
+
+<div class="summary-grid">
+  <div class="metric">
+    <div class="metric-label">Total casos</div>
+    <div class="metric-value">52</div>
+    <div class="metric-sub">API + UI + E2E</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Severidad S1</div>
+    <div class="metric-value m-red">22</div>
+    <div class="metric-sub">Críticos — bloquean release</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">Severidad S2</div>
+    <div class="metric-value m-amber">20</div>
+    <div class="metric-sub">Alta — impacto UX/negocio</div>
+  </div>
+  <div class="metric">
+    <div class="metric-label">S3 + S4</div>
+    <div class="metric-value m-green">10</div>
+    <div class="metric-sub">Pueden diferirse</div>
+  </div>
+</div>
+
+<div class="legend">
+  <div class="legend-item"><span class="badge s1">S1</span> Crítica</div>
+  <div class="legend-item"><span class="badge s2">S2</span> Alta</div>
+  <div class="legend-item"><span class="badge s3">S3</span> Media</div>
+  <div class="legend-item"><span class="badge s4">S4</span> Baja</div>
+  <div class="legend-item" style="margin-left:12px"><span class="badge p1">P1</span> Inmediata</div>
+  <div class="legend-item"><span class="badge p2">P2</span> Alta</div>
+  <div class="legend-item"><span class="badge p3">P3</span> Normal</div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" onclick="show('usuarios', this)">👤 Usuarios CRUD</button>
+  <button class="tab" onclick="show('auth', this)">🔐 Autenticación</button>
+  <button class="tab" onclick="show('productos', this)">🛍️ Productos</button>
+  <button class="tab" onclick="show('marcas', this)">🏷️ Marcas</button>
+  <button class="tab" onclick="show('e2e', this)">🔁 Flujos E2E</button>
+  <button class="tab" onclick="show('integracion', this)">🖥️ UI + Integración</button>
+</div>
+
+<!-- USUARIOS -->
+<div id="usuarios" class="section active">
+  <div class="section-title">Usuarios — Casos de Prueba (CRUD) <span class="badge s1">15 TC</span></div>
+  <div class="scroll-table"><table>
+    <tr><th>ID</th><th>Caso</th><th>Endpoint</th><th>Tipo</th><th>Entrada</th><th>Resultado esperado</th><th>Sev.</th><th>Prio.</th><th>Impacto negocio</th></tr>
+    <tr><td class="tc-id">TC-USR-01</td><td>Registro exitoso con todos los campos válidos</td><td><span class="method post">POST</span> /createAccount</td><td>Camino crítico</td><td>Todos los campos requeridos con data válida, email único</td><td>responseCode 201, message "User created!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Sin registro, no hay ventas ni conversión</td></tr>
+    <tr><td class="tc-id">TC-USR-02</td><td>Registro con email ya existente</td><td><span class="method post">POST</span> /createAccount</td><td>Alternativo</td><td>Email previamente registrado</td><td>responseCode 400, mensaje de email duplicado</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Evita corrupción de datos y frustración del usuario</td></tr>
+    <tr><td class="tc-id">TC-USR-03</td><td>Registro con campos obligatorios vacíos</td><td><span class="method post">POST</span> /createAccount</td><td>Alternativo</td><td>Omitir name, email o password</td><td>responseCode 400, mensaje de campo faltante</td><td><span class="badge s2">S2</span></td><td><span class="badge p1">P1</span></td><td>Integridad de datos en el sistema</td></tr>
+    <tr><td class="tc-id">TC-USR-04</td><td>Registro con email inválido (sin @)</td><td><span class="method post">POST</span> /createAccount</td><td>Alternativo</td><td>email = "notanemail"</td><td>responseCode 400, validación de formato</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Previene contacto fallido y pérdida de cliente</td></tr>
+    <tr><td class="tc-id">TC-USR-05</td><td>Obtener detalle de usuario existente</td><td><span class="method get">GET</span> /getUserDetailByEmail</td><td>Camino crítico</td><td>email de usuario creado en TC-USR-01</td><td>responseCode 200, objeto user con email y name correctos</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Perfil de usuario, personalización y checkout</td></tr>
+    <tr><td class="tc-id">TC-USR-06</td><td>Obtener detalle de usuario inexistente</td><td><span class="method get">GET</span> /getUserDetailByEmail</td><td>Alternativo</td><td>email = "noexiste@xyz.com"</td><td>responseCode 404, mensaje de usuario no encontrado</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>UX del login / búsqueda de cuenta</td></tr>
+    <tr><td class="tc-id">TC-USR-07</td><td>Obtener detalle sin parámetro email</td><td><span class="method get">GET</span> /getUserDetailByEmail</td><td>Alternativo</td><td>Sin query param email</td><td>responseCode 400, parámetro faltante</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Robustez de la API ante mal uso</td></tr>
+    <tr><td class="tc-id">TC-USR-08</td><td>Actualizar usuario con datos válidos</td><td><span class="method put">PUT</span> /updateAccount</td><td>Camino crítico</td><td>Todos los campos, email existente, datos nuevos</td><td>responseCode 200, message "User updated!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Gestión de dirección de envío y datos de facturación</td></tr>
+    <tr><td class="tc-id">TC-USR-09</td><td>Actualizar usuario inexistente</td><td><span class="method put">PUT</span> /updateAccount</td><td>Alternativo</td><td>email no registrado</td><td>responseCode 404, usuario no encontrado</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Coherencia de datos en perfil</td></tr>
+    <tr><td class="tc-id">TC-USR-10</td><td>Actualizar sin campos requeridos</td><td><span class="method put">PUT</span> /updateAccount</td><td>Alternativo</td><td>Omitir name o password</td><td>responseCode 400, validación de campos</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Integridad de datos de usuario</td></tr>
+    <tr><td class="tc-id">TC-USR-11</td><td>Eliminar cuenta con credenciales correctas</td><td><span class="method del">DELETE</span> /deleteAccount</td><td>Camino crítico</td><td>email y password válidos</td><td>responseCode 200, message "Account deleted!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>GDPR / derecho al olvido, retención de usuario</td></tr>
+    <tr><td class="tc-id">TC-USR-12</td><td>Eliminar cuenta con password incorrecto</td><td><span class="method del">DELETE</span> /deleteAccount</td><td>Alternativo</td><td>email válido, password = "wrongpass"</td><td>responseCode 401/403, acceso denegado</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Seguridad: previene eliminación maliciosa</td></tr>
+    <tr><td class="tc-id">TC-USR-13</td><td>Eliminar usuario inexistente</td><td><span class="method del">DELETE</span> /deleteAccount</td><td>Alternativo</td><td>email no registrado</td><td>responseCode 404, usuario no encontrado</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Manejo de estado coherente</td></tr>
+    <tr><td class="tc-id">TC-USR-14</td><td>Idempotencia: eliminar cuenta ya eliminada</td><td><span class="method del">DELETE</span> /deleteAccount</td><td>Borde</td><td>Repetir delete del mismo email</td><td>responseCode 404, no error 500</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Robustez ante reintentos de UI</td></tr>
+    <tr><td class="tc-id">TC-USR-15</td><td>Verificar persistencia post-actualización</td><td><span class="method get">GET</span> /getUserDetailByEmail</td><td>Integración</td><td>GET luego de PUT exitoso</td><td>Los nuevos datos del usuario reflejados correctamente</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Consistencia de datos en toda la plataforma</td></tr>
+  </table></div>
+</div>
+
+<!-- AUTENTICACIÓN -->
+<div id="auth" class="section">
+  <div class="section-title">Autenticación — Casos de Prueba <span class="badge s1">10 TC</span></div>
+  <div class="scroll-table"><table>
+    <tr><th>ID</th><th>Caso</th><th>Endpoint</th><th>Tipo</th><th>Entrada</th><th>Resultado esperado</th><th>Sev.</th><th>Prio.</th><th>Impacto negocio</th></tr>
+    <tr><td class="tc-id">TC-AUTH-01</td><td>Login con credenciales válidas</td><td><span class="method post">POST</span> /verifyLogin</td><td>Camino crítico</td><td>email y password de usuario existente</td><td>responseCode 200, message "User exists!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Acceso a checkout, historial y wishlist</td></tr>
+    <tr><td class="tc-id">TC-AUTH-02</td><td>Login con email inexistente</td><td><span class="method post">POST</span> /verifyLogin</td><td>Alternativo</td><td>email = "noexiste@mail.com"</td><td>responseCode 404, message "User not found!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Seguridad y UX: mensaje claro al usuario</td></tr>
+    <tr><td class="tc-id">TC-AUTH-03</td><td>Login con password incorrecto</td><td><span class="method post">POST</span> /verifyLogin</td><td>Alternativo</td><td>email válido, password erróneo</td><td>responseCode 404, message "User not found!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Seguridad: no revelar si el email existe</td></tr>
+    <tr><td class="tc-id">TC-AUTH-04</td><td>Login sin parámetro email</td><td><span class="method post">POST</span> /verifyLogin</td><td>Alternativo</td><td>Solo password en body</td><td>responseCode 400, parámetro faltante</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Validación de formulario en UI</td></tr>
+    <tr><td class="tc-id">TC-AUTH-05</td><td>Login sin parámetro password</td><td><span class="method post">POST</span> /verifyLogin</td><td>Alternativo</td><td>Solo email en body</td><td>responseCode 400, parámetro faltante</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Validación de formulario en UI</td></tr>
+    <tr><td class="tc-id">TC-AUTH-06</td><td>Login sin body (request vacío)</td><td><span class="method post">POST</span> /verifyLogin</td><td>Borde</td><td>Body vacío</td><td>responseCode 400, no error 500</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Robustez de la API</td></tr>
+    <tr><td class="tc-id">TC-AUTH-07</td><td>Method not allowed: DELETE en /verifyLogin</td><td><span class="method del">DELETE</span> /verifyLogin</td><td>Negativo</td><td>Request DELETE</td><td>responseCode 405, "This request method is not supported"</td><td><span class="badge s3">S3</span></td><td><span class="badge p3">P3</span></td><td>Seguridad de API: no exponer métodos no soportados</td></tr>
+    <tr><td class="tc-id">TC-AUTH-08</td><td>Login con email en formato vacío ""</td><td><span class="method post">POST</span> /verifyLogin</td><td>Borde</td><td>email = "", password válido</td><td>responseCode 400, parámetro inválido</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Validación frontend-backend alineada</td></tr>
+    <tr><td class="tc-id">TC-AUTH-09</td><td>Login con password en mayúsculas (case sensitivity)</td><td><span class="method post">POST</span> /verifyLogin</td><td>Borde</td><td>Password correcto pero en mayúsculas</td><td>responseCode 404 (passwords son case-sensitive)</td><td><span class="badge s3">S3</span></td><td><span class="badge p3">P3</span></td><td>UX: informar correctamente al usuario</td></tr>
+    <tr><td class="tc-id">TC-AUTH-10</td><td>Login luego de eliminar la cuenta</td><td><span class="method post">POST</span> /verifyLogin</td><td>Integración</td><td>Credenciales de cuenta eliminada</td><td>responseCode 404, "User not found!"</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Coherencia entre ciclos de vida de cuenta</td></tr>
+  </table></div>
+</div>
+
+<!-- PRODUCTOS -->
+<div id="productos" class="section">
+  <div class="section-title">Productos — Casos de Prueba <span class="badge s1">10 TC</span></div>
+  <div class="scroll-table"><table>
+    <tr><th>ID</th><th>Caso</th><th>Endpoint</th><th>Tipo</th><th>Entrada</th><th>Resultado esperado</th><th>Sev.</th><th>Prio.</th><th>Impacto negocio</th></tr>
+    <tr><td class="tc-id">TC-PROD-01</td><td>Listar todos los productos</td><td><span class="method get">GET</span> /productsList</td><td>Camino crítico</td><td>Sin parámetros</td><td>responseCode 200, array products no vacío con id/name/price/brand/category</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Catálogo principal: sin esto no hay tienda</td></tr>
+    <tr><td class="tc-id">TC-PROD-02</td><td>Estructura del objeto producto completa</td><td><span class="method get">GET</span> /productsList</td><td>Contrato API</td><td>Sin parámetros</td><td>Cada producto contiene id, name, price, brand, category (no nulos)</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Renderización correcta de cards de producto</td></tr>
+    <tr><td class="tc-id">TC-PROD-03</td><td>Method not allowed: POST en /productsList</td><td><span class="method post">POST</span> /productsList</td><td>Negativo</td><td>POST vacío</td><td>responseCode 405, método no soportado</td><td><span class="badge s3">S3</span></td><td><span class="badge p3">P3</span></td><td>Seguridad de API</td></tr>
+    <tr><td class="tc-id">TC-PROD-04</td><td>Buscar producto con término válido "top"</td><td><span class="method post">POST</span> /searchProduct</td><td>Camino crítico</td><td>search_product = "top"</td><td>responseCode 200, array products con resultados relevantes</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Descubrimiento de producto = conversión directa</td></tr>
+    <tr><td class="tc-id">TC-PROD-05</td><td>Buscar producto con término "tshirt"</td><td><span class="method post">POST</span> /searchProduct</td><td>Camino crítico</td><td>search_product = "tshirt"</td><td>responseCode 200, productos de tipo tshirt</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Cobertura de categorías populares</td></tr>
+    <tr><td class="tc-id">TC-PROD-06</td><td>Buscar sin parámetro search_product</td><td><span class="method post">POST</span> /searchProduct</td><td>Alternativo</td><td>Body vacío</td><td>responseCode 400, "search_product parameter is missing"</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>UX: validar búsqueda vacía en UI</td></tr>
+    <tr><td class="tc-id">TC-PROD-07</td><td>Buscar término sin resultados</td><td><span class="method post">POST</span> /searchProduct</td><td>Alternativo</td><td>search_product = "xyzproductofalso"</td><td>responseCode 200, products array vacío</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>UX: pantalla de "sin resultados" en UI</td></tr>
+    <tr><td class="tc-id">TC-PROD-08</td><td>Buscar con caracteres especiales (SQLi)</td><td><span class="method post">POST</span> /searchProduct</td><td>Borde / Seguridad</td><td>search_product = "'; DROP TABLE--"</td><td>responseCode 400 o 200 con array vacío, sin error 500</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Seguridad: prevención de SQL injection</td></tr>
+    <tr><td class="tc-id">TC-PROD-09</td><td>Buscar con término muy largo (+500 chars)</td><td><span class="method post">POST</span> /searchProduct</td><td>Borde</td><td>search_product = "a".repeat(500)</td><td>Respuesta sin error 500, manejo gracioso</td><td><span class="badge s2">S2</span></td><td><span class="badge p3">P3</span></td><td>Estabilidad del servidor</td></tr>
+    <tr><td class="tc-id">TC-PROD-10</td><td>Verificar precios son valores numéricos positivos</td><td><span class="method get">GET</span> /productsList</td><td>Contrato API</td><td>Sin parámetros</td><td>Todos los productos tienen price > 0, formato "Rs. X"</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Cálculo de totales en carrito de compras</td></tr>
+  </table></div>
+</div>
+
+<!-- MARCAS -->
+<div id="marcas" class="section">
+  <div class="section-title">Marcas — Casos de Prueba <span class="badge s2">5 TC</span></div>
+  <div class="scroll-table"><table>
+    <tr><th>ID</th><th>Caso</th><th>Endpoint</th><th>Tipo</th><th>Entrada</th><th>Resultado esperado</th><th>Sev.</th><th>Prio.</th><th>Impacto negocio</th></tr>
+    <tr><td class="tc-id">TC-BRAND-01</td><td>Listar todas las marcas</td><td><span class="method get">GET</span> /brandsList</td><td>Camino crítico</td><td>Sin parámetros</td><td>responseCode 200, array brands no vacío con id y brand</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td><td>Filtrado por marca = conversión en catálogo</td></tr>
+    <tr><td class="tc-id">TC-BRAND-02</td><td>Estructura del objeto brand completa</td><td><span class="method get">GET</span> /brandsList</td><td>Contrato API</td><td>Sin parámetros</td><td>Cada brand tiene id (int) y brand (string no vacío)</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Renderización de filtros en UI de catálogo</td></tr>
+    <tr><td class="tc-id">TC-BRAND-03</td><td>Method not allowed: PUT en /brandsList</td><td><span class="method put">PUT</span> /brandsList</td><td>Negativo</td><td>PUT vacío</td><td>responseCode 405, método no soportado</td><td><span class="badge s3">S3</span></td><td><span class="badge p3">P3</span></td><td>Seguridad: no permitir modificación de catálogo</td></tr>
+    <tr><td class="tc-id">TC-BRAND-04</td><td>IDs de marcas son únicos y no duplicados</td><td><span class="method get">GET</span> /brandsList</td><td>Contrato API</td><td>Sin parámetros</td><td>Todos los brand.id son únicos en el array</td><td><span class="badge s2">S2</span></td><td><span class="badge p3">P3</span></td><td>Integridad de filtros y navegación</td></tr>
+    <tr><td class="tc-id">TC-BRAND-05</td><td>Marcas de /brandsList coinciden con /productsList</td><td>Cross-endpoint</td><td>Integración</td><td>GET brands + GET products</td><td>Todas las marcas de productos existen en brandsList</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td><td>Coherencia de datos para filtros por marca</td></tr>
+  </table></div>
+</div>
+
+<!-- E2E -->
+<div id="e2e" class="section">
+  <div class="section-title">Flujos End-to-End <span class="badge s1">5 flujos · 26 pasos totales</span></div>
+
+  <div class="e2e-flow">
+    <div class="e2e-title" style="color:#A32D2D">E2E-01 — Ciclo completo de vida de usuario &nbsp;<span class="badge s1">S1 / P1</span></div>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:8px">Cubre registro, verificación, actualización, login post-update y eliminación. Impacto: adquisición y retención de clientes.</p>
+    <div class="e2e-steps">
+      <div class="step-box">POST /createAccount<br><span style="color:#9c9a92">201 Created</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /verifyLogin<br><span style="color:#9c9a92">200 User exists</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /getUserDetailByEmail<br><span style="color:#9c9a92">200 + data</span></div><div class="step-arrow">→</div>
+      <div class="step-box">PUT /updateAccount<br><span style="color:#9c9a92">200 Updated</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /getUserDetailByEmail<br><span style="color:#9c9a92">Verificar nuevos datos</span></div><div class="step-arrow">→</div>
+      <div class="step-box">DELETE /deleteAccount<br><span style="color:#9c9a92">200 Deleted</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /verifyLogin<br><span style="color:#9c9a92">404 Not found</span></div>
+    </div>
+  </div>
+
+  <div class="e2e-flow">
+    <div class="e2e-title" style="color:#854F0B">E2E-02 — Búsqueda y catálogo como usuario autenticado &nbsp;<span class="badge s1">S1 / P1</span></div>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:8px">Simula el flujo de compra: login → explorar catálogo → buscar → filtrar por marca. Impacto directo en conversión.</p>
+    <div class="e2e-steps">
+      <div class="step-box">POST /createAccount<br><span style="color:#9c9a92">201 Created</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /verifyLogin<br><span style="color:#9c9a92">200 User exists</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /productsList<br><span style="color:#9c9a92">200 + catálogo</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /brandsList<br><span style="color:#9c9a92">200 + marcas</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /searchProduct<br><span style="color:#9c9a92">200 + resultados</span></div><div class="step-arrow">→</div>
+      <div class="step-box">DELETE /deleteAccount<br><span style="color:#9c9a92">Cleanup</span></div>
+    </div>
+  </div>
+
+  <div class="e2e-flow">
+    <div class="e2e-title" style="color:#3B6D11">E2E-03 — Intento de registro bloqueado por duplicado &nbsp;<span class="badge s2">S2 / P2</span></div>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:8px">Valida que el sistema rechaza registros duplicados y que el login funciona con la cuenta original.</p>
+    <div class="e2e-steps">
+      <div class="step-box">POST /createAccount<br><span style="color:#9c9a92">201 Created</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /createAccount<br><span style="color:#9c9a92">400 Email duplicado</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /verifyLogin<br><span style="color:#9c9a92">200 cuenta original OK</span></div><div class="step-arrow">→</div>
+      <div class="step-box">DELETE /deleteAccount<br><span style="color:#9c9a92">Cleanup</span></div>
+    </div>
+  </div>
+
+  <div class="e2e-flow">
+    <div class="e2e-title" style="color:#185FA5">E2E-04 — Sesión inválida: acceso post-eliminación &nbsp;<span class="badge s1">S1 / P1</span></div>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:8px">Verifica que tras eliminar la cuenta, ninguna operación puede realizarse con esas credenciales.</p>
+    <div class="e2e-steps">
+      <div class="step-box">POST /createAccount<br><span style="color:#9c9a92">201 Created</span></div><div class="step-arrow">→</div>
+      <div class="step-box">DELETE /deleteAccount<br><span style="color:#9c9a92">200 Deleted</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /verifyLogin<br><span style="color:#9c9a92">404 Not found</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /getUserDetailByEmail<br><span style="color:#9c9a92">404 Not found</span></div><div class="step-arrow">→</div>
+      <div class="step-box">PUT /updateAccount<br><span style="color:#9c9a92">404 Not found</span></div>
+    </div>
+  </div>
+
+  <div class="e2e-flow">
+    <div class="e2e-title" style="color:#534AB7">E2E-05 — Consistencia de datos cross-endpoint &nbsp;<span class="badge s2">S2 / P2</span></div>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:8px">Valida coherencia: marcas en productos = marcas en brandsList.</p>
+    <div class="e2e-steps">
+      <div class="step-box">GET /productsList<br><span style="color:#9c9a92">Extraer brands</span></div><div class="step-arrow">→</div>
+      <div class="step-box">GET /brandsList<br><span style="color:#9c9a92">Extraer brands</span></div><div class="step-arrow">→</div>
+      <div class="step-box">Comparar sets<br><span style="color:#9c9a92">brands(prod) ⊆ brands(list)</span></div><div class="step-arrow">→</div>
+      <div class="step-box">POST /searchProduct<br><span style="color:#9c9a92">Resultados tienen marca válida</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- UI -->
+<div id="integracion" class="section">
+  <div class="section-title">UI + Integración — Casos de Prueba <span class="badge s1">12 TC</span></div>
+  <div class="scroll-table"><table>
+    <tr><th>ID</th><th>Caso UI</th><th>API involucrada</th><th>Comportamiento UI esperado</th><th>Verificación</th><th>Sev.</th><th>Prio.</th></tr>
+    <tr><td class="tc-id">TC-UI-01</td><td>Formulario de registro: campos requeridos marcados</td><td>POST /createAccount</td><td>UI bloquea submit si faltan name, email o password. No llama a la API.</td><td>Validación HTML5 + mensajes de error visibles antes del request</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-02</td><td>Mensaje de éxito post-registro</td><td>POST /createAccount (201)</td><td>Mostrar "Account Created!" y redirigir a login o home</td><td>UI renderiza confirmación, no queda en pantalla de carga</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-03</td><td>Login fallido: mensaje claro de error</td><td>POST /verifyLogin (404)</td><td>"Email or password is incorrect!" visible en el formulario</td><td>No se redirige, mensaje visible sin recargar</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-04</td><td>Catálogo carga productos del API</td><td>GET /productsList (200)</td><td>Cards de producto con imagen, nombre y precio renderizados</td><td>Número de cards = total_products del API, sin cards vacías</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-05</td><td>Barra de búsqueda: muestra resultados</td><td>POST /searchProduct (200)</td><td>Al escribir y enviar, la grilla se actualiza con los productos encontrados</td><td>UI muestra solo productos del array retornado por la API</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-06</td><td>Búsqueda sin resultados: estado vacío</td><td>POST /searchProduct (200, [])</td><td>"No products found" visible, sin errores de consola</td><td>La UI maneja el array vacío con mensaje amigable</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td></tr>
+    <tr><td class="tc-id">TC-UI-07</td><td>Filtro por marcas en sidebar</td><td>GET /brandsList + GET /productsList</td><td>Sidebar muestra las marcas del API; al clicar filtra el catálogo</td><td>Solo se muestran productos cuyo brand coincide con el seleccionado</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td></tr>
+    <tr><td class="tc-id">TC-UI-08</td><td>Eliminación de cuenta desde perfil</td><td>DELETE /deleteAccount (200)</td><td>Diálogo de confirmación, luego logout automático y redirección a home</td><td>La sesión se invalida, no se puede volver sin hacer login</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-09</td><td>Timeout de API: UI no se congela</td><td>Cualquier endpoint</td><td>Si la API tarda +5s, mostrar spinner y mensaje de error gracioso</td><td>UI no queda en estado cargando indefinido</td><td><span class="badge s2">S2</span></td><td><span class="badge p2">P2</span></td></tr>
+    <tr><td class="tc-id">TC-UI-10</td><td>Responsive: catálogo en mobile</td><td>GET /productsList</td><td>Cards se adaptan a viewport &lt;768px sin overflow horizontal</td><td>Inspección visual en viewport 375px y 768px</td><td><span class="badge s2">S2</span></td><td><span class="badge p3">P3</span></td></tr>
+    <tr><td class="tc-id">TC-UI-11</td><td>Persistencia de sesión post-actualización de perfil</td><td>PUT /updateAccount + GET /getUserDetailByEmail</td><td>UI refleja el nuevo nombre/email en el header sin cerrar sesión</td><td>El nombre en la navbar se actualiza tras el PUT</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+    <tr><td class="tc-id">TC-UI-12</td><td>Seguridad: campos de password no quedan en localStorage</td><td>POST /verifyLogin</td><td>La password nunca persiste en localStorage o sessionStorage</td><td>Inspección de storage tras login exitoso: password ausente</td><td><span class="badge s1">S1</span></td><td><span class="badge p1">P1</span></td></tr>
+  </table></div>
+</div>
+
+<script>
+function show(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+}
+</script>
+</body>
+</html>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 .wrap{padding:16px 0;color:var(--color-text-primary);font-family:var(--font-sans)}
