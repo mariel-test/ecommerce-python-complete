@@ -1,0 +1,234 @@
+{
+  "info": {
+    "name": "AutomationExercise – Colección Completa (14 APIs)",
+    "description": "Colección completa de los 14 endpoints REST reales de https://automationexercise.com/api_list\nTodos los requests retornan JSON con responseCode y message/data.\n\nVariables de entorno incluidas:\n  • base_url  → https://automationexercise.com\n  • email     → tu email de prueba\n  • password  → tu password de prueba",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "automationexercise-complete-v1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://automationexercise.com",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "testuser_{{$randomInt}}@mail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test@1234",
+      "type": "string"
+    },
+    {
+      "key": "user_name",
+      "value": "Test User",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🔐 Autenticación (Login)",
+      "description": "Verificación de credenciales de usuario.",
+      "item": [
+        {
+          "name": "API 7 – POST Verify Login (credenciales válidas)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "verifyLogin"
+              ]
+            },
+            "description": "Verifica credenciales válidas. Retorna 200 + 'User exists!'.\nNota: usar email de un usuario creado previamente con API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User exists!', () => {",
+                  "    pm.expect(res.message).to.eql('User exists!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 8 – POST Verify Login SIN email (400 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "verifyLogin"
+              ]
+            },
+            "description": "Sin parámetro email. Debe retornar 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 400', () => {",
+                  "    pm.expect(res.responseCode).to.eql(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje indica email faltante', () => {",
+                  "    pm.expect(res.message).to.include('email or password parameter is missing');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 9 – DELETE Verify Login (405 esperado)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "verifyLogin"
+              ]
+            },
+            "description": "DELETE no soportado. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 10 – POST Verify Login (credenciales inválidas, 404 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "noexiste@mail.com",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "wrong_password",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "verifyLogin"
+              ]
+            },
+            "description": "Credenciales inválidas. Debe retornar 404 + 'User not found!'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 404', () => {",
+                  "    pm.expect(res.responseCode).to.eql(404);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User not found!', () => {",
+                  "    pm.expect(res.message).to.eql('User not found!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

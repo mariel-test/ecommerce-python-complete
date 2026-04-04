@@ -1,0 +1,130 @@
+{
+  "info": {
+    "name": "AutomationExercise – Colección Completa (14 APIs)",
+    "description": "Colección completa de los 14 endpoints REST reales de https://automationexercise.com/api_list\nTodos los requests retornan JSON con responseCode y message/data.\n\nVariables de entorno incluidas:\n  • base_url  → https://automationexercise.com\n  • email     → tu email de prueba\n  • password  → tu password de prueba",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "automationexercise-complete-v1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://automationexercise.com",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "testuser_{{$randomInt}}@mail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test@1234",
+      "type": "string"
+    },
+    {
+      "key": "user_name",
+      "value": "Test User",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏷️ Marcas (Brands)",
+      "description": "Endpoints para obtener la lista de marcas.",
+      "item": [
+        {
+          "name": "API 3 – GET All Brands List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/brandsList",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "brandsList"
+              ]
+            },
+            "description": "Retorna todas las marcas disponibles en el catálogo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Contiene lista de marcas', () => {",
+                  "    pm.expect(res).to.have.property('brands');",
+                  "    pm.expect(res.brands).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Cada marca tiene id y brand', () => {",
+                  "    res.brands.forEach(b => {",
+                  "        pm.expect(b).to.have.property('id');",
+                  "        pm.expect(b).to.have.property('brand');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('Total marcas:', res.brands.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 4 – PUT All Brands List (405 esperado)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/api/brandsList",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "brandsList"
+              ]
+            },
+            "description": "PUT no está soportado en marcas. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

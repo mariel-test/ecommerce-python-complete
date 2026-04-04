@@ -1,0 +1,423 @@
+{
+  "info": {
+    "name": "AutomationExercise – Colección Completa (14 APIs)",
+    "description": "Colección completa de los 14 endpoints REST reales de https://automationexercise.com/api_list\nTodos los requests retornan JSON con responseCode y message/data.\n\nVariables de entorno incluidas:\n  • base_url  → https://automationexercise.com\n  • email     → tu email de prueba\n  • password  → tu password de prueba",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "automationexercise-complete-v1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://automationexercise.com",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "testuser_{{$randomInt}}@mail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test@1234",
+      "type": "string"
+    },
+    {
+      "key": "user_name",
+      "value": "Test User",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "👤 Usuarios (CRUD)",
+      "description": "Creación, lectura, actualización y eliminación de cuentas de usuario.\nFlujo recomendado: API 11 → API 7 → API 14 → API 13 → API 12",
+      "item": [
+        {
+          "name": "API 11 – POST Create/Register User Account",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "{{user_name}}",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Mr",
+                  "type": "text",
+                  "description": "Mr, Mrs, Miss"
+                },
+                {
+                  "key": "birth_date",
+                  "value": "15",
+                  "type": "text"
+                },
+                {
+                  "key": "birth_month",
+                  "value": "6",
+                  "type": "text"
+                },
+                {
+                  "key": "birth_year",
+                  "value": "1990",
+                  "type": "text"
+                },
+                {
+                  "key": "firstname",
+                  "value": "Test",
+                  "type": "text"
+                },
+                {
+                  "key": "lastname",
+                  "value": "User",
+                  "type": "text"
+                },
+                {
+                  "key": "company",
+                  "value": "TestCorp",
+                  "type": "text"
+                },
+                {
+                  "key": "address1",
+                  "value": "123 Test Street",
+                  "type": "text"
+                },
+                {
+                  "key": "address2",
+                  "value": "Suite 100",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "United States",
+                  "type": "text"
+                },
+                {
+                  "key": "zipcode",
+                  "value": "10001",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "New York",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "New York City",
+                  "type": "text"
+                },
+                {
+                  "key": "mobile_number",
+                  "value": "1234567890",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/createAccount",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "createAccount"
+              ]
+            },
+            "description": "Crea una cuenta de usuario nueva. Retorna 201 + 'User created!'.\nTodos los campos son requeridos."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Generar email único para evitar conflictos",
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('email', `testuser_${ts}@mail.com`);",
+                  "console.log('Email generado:', pm.collectionVariables.get('email'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 201 (Created)', () => {",
+                  "    pm.expect(res.responseCode).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User created!', () => {",
+                  "    pm.expect(res.message).to.eql('User created!');",
+                  "});",
+                  "",
+                  "console.log('Usuario creado:', pm.collectionVariables.get('email'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 14 – GET User Detail by Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/getUserDetailByEmail?email={{email}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "getUserDetailByEmail"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "description": "Email del usuario a consultar"
+                }
+              ]
+            },
+            "description": "Obtiene los detalles de un usuario por email. Ejecutar luego de API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna detalle del usuario', () => {",
+                  "    pm.expect(res).to.have.property('user');",
+                  "    pm.expect(res.user).to.have.property('email');",
+                  "    pm.expect(res.user).to.have.property('name');",
+                  "});",
+                  "",
+                  "pm.test('El email coincide', () => {",
+                  "    pm.expect(res.user.email).to.eql(pm.collectionVariables.get('email'));",
+                  "});",
+                  "",
+                  "console.log('Usuario encontrado:', JSON.stringify(res.user, null, 2));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 13 – PUT Update User Account",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "name",
+                  "value": "Updated User",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                },
+                {
+                  "key": "title",
+                  "value": "Mrs",
+                  "type": "text"
+                },
+                {
+                  "key": "birth_date",
+                  "value": "20",
+                  "type": "text"
+                },
+                {
+                  "key": "birth_month",
+                  "value": "12",
+                  "type": "text"
+                },
+                {
+                  "key": "birth_year",
+                  "value": "1995",
+                  "type": "text"
+                },
+                {
+                  "key": "firstname",
+                  "value": "Updated",
+                  "type": "text"
+                },
+                {
+                  "key": "lastname",
+                  "value": "Name",
+                  "type": "text"
+                },
+                {
+                  "key": "company",
+                  "value": "NewCorp",
+                  "type": "text"
+                },
+                {
+                  "key": "address1",
+                  "value": "456 New Street",
+                  "type": "text"
+                },
+                {
+                  "key": "address2",
+                  "value": "",
+                  "type": "text"
+                },
+                {
+                  "key": "country",
+                  "value": "Canada",
+                  "type": "text"
+                },
+                {
+                  "key": "zipcode",
+                  "value": "A1B2C3",
+                  "type": "text"
+                },
+                {
+                  "key": "state",
+                  "value": "Ontario",
+                  "type": "text"
+                },
+                {
+                  "key": "city",
+                  "value": "Toronto",
+                  "type": "text"
+                },
+                {
+                  "key": "mobile_number",
+                  "value": "9876543210",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/updateAccount",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "updateAccount"
+              ]
+            },
+            "description": "Actualiza los datos de un usuario existente. Retorna 200 + 'User updated!'.\nEjecutar luego de API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User updated!', () => {",
+                  "    pm.expect(res.message).to.eql('User updated!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 12 – DELETE User Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "{{password}}",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deleteAccount",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "deleteAccount"
+              ]
+            },
+            "description": "Elimina una cuenta de usuario. Retorna 200 + 'Account deleted!'.\nEjecutar al final del flujo (después de API 11, 14 y 13)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: Account deleted!', () => {",
+                  "    pm.expect(res.message).to.eql('Account deleted!');",
+                  "});",
+                  "",
+                  "// Limpiar variable de email",
+                  "pm.collectionVariables.unset('email');",
+                  "console.log('Cuenta eliminada exitosamente.');"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,288 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:16px 0;color:var(--color-text-primary);font-family:var(--font-sans)}
+.summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:20px}
+.metric{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px}
+.metric-label{font-size:11px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-value{font-size:26px;font-weight:500}
+.metric-sub{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.m-red{color:#A32D2D}.m-amber{color:#633806}.m-green{color:#3B6D11}.m-blue{color:#0C447C}
+
+.time-selector{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.time-btn{padding:7px 16px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;border:1px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);transition:all .15s;font-family:var(--font-sans)}
+.time-btn.active{background:#E6F1FB;color:#0C447C;border-color:#378ADD;font-weight:500}
+.time-btn:hover:not(.active){background:var(--color-background-primary)}
+
+.section-label{font-size:13px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500;white-space:nowrap}
+.s1{background:#FCEBEB;color:#791F1F}.s2{background:#FAEEDA;color:#633806}.s3{background:#EAF3DE;color:#3B6D11}.s4{background:#E6F1FB;color:#0C447C}
+.incl{background:#EAF3DE;color:#3B6D11}.excl{background:#F1EFE8;color:#5F5E5A}
+
+table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px}
+th{background:var(--color-background-secondary);padding:7px 10px;text-align:left;font-size:11px;font-weight:500;color:var(--color-text-secondary);border-bottom:1px solid var(--color-border-tertiary)}
+td{padding:6px 10px;border-bottom:1px solid var(--color-border-tertiary);vertical-align:top;line-height:1.45}
+tr.included td{background:var(--color-background-primary)}
+tr.excluded td{opacity:.45;background:var(--color-background-secondary)}
+tr.excluded td:first-child{text-decoration:line-through;color:var(--color-text-tertiary)}
+.tc-id{font-family:var(--font-mono);font-size:10px;color:var(--color-text-tertiary)}
+.method{display:inline-block;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:500}
+.get{background:#EAF3DE;color:#3B6D11}.post{background:#E6F1FB;color:#0C447C}.put{background:#FAEEDA;color:#633806}.del{background:#FCEBEB;color:#791F1F}
+.coverage-bar{height:8px;border-radius:4px;background:var(--color-border-tertiary);overflow:hidden;margin-top:4px}
+.coverage-fill{height:100%;border-radius:4px;background:#639922;transition:width .4s}
+.cov-label{font-size:11px;color:var(--color-text-secondary);display:flex;justify-content:space-between;margin-bottom:2px}
+.progress-section{background:var(--color-background-secondary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:20px}
+.prog-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.prog-item{}
+.chart-wrap{position:relative;width:100%;height:180px;margin-bottom:20px}
+.rationale{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:12px 14px;margin-bottom:20px;font-size:12px;color:var(--color-text-secondary);line-height:1.6;border-left:3px solid #378ADD}
+.rationale strong{color:var(--color-text-primary);font-weight:500}
+</style>
+<div class="wrap">
+
+  <div class="summary-grid">
+    <div class="metric">
+      <div class="metric-label">Total casos</div>
+      <div class="metric-value">52</div>
+      <div class="metric-sub">API + UI + E2E</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Severidad S1</div>
+      <div class="metric-value m-red">22</div>
+      <div class="metric-sub">Críticos — bloquean release</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">Severidad S2</div>
+      <div class="metric-value m-amber">20</div>
+      <div class="metric-sub">Alta — impacto UX/negocio</div>
+    </div>
+    <div class="metric">
+      <div class="metric-label">S3 + S4</div>
+      <div class="metric-value m-green">10</div>
+      <div class="metric-sub">Pueden diferirse</div>
+    </div>
+  </div>
+
+  <div class="progress-section">
+    <div class="prog-grid">
+      <div class="prog-item">
+        <div class="cov-label"><span>Usuarios CRUD (15 TC)</span><span id="pct-usr">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-usr" style="width:100%"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="cov-label"><span>Autenticación (10 TC)</span><span id="pct-auth">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-auth" style="width:100%"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="cov-label"><span>Productos (10 TC)</span><span id="pct-prod">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-prod" style="width:100%"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="cov-label"><span>Marcas (5 TC)</span><span id="pct-brand">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-brand" style="width:100%"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="cov-label"><span>E2E (5 flujos)</span><span id="pct-e2e">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-e2e" style="width:100%"></div></div>
+      </div>
+      <div class="prog-item">
+        <div class="cov-label"><span>UI / Integración (12 TC)</span><span id="pct-ui">100%</span></div>
+        <div class="coverage-bar"><div class="coverage-fill" id="bar-ui" style="width:100%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="font-size:14px;font-weight:500;margin-bottom:10px">Modo triaje por tiempo disponible</div>
+  <div class="time-selector">
+    <button class="time-btn" onclick="applyTime('full')">Sin restricción (52 TC)</button>
+    <button class="time-btn active" onclick="applyTime('half')">Tiempo al 50% (30 TC)</button>
+    <button class="time-btn" onclick="applyTime('quarter')">Tiempo al 25% (16 TC)</button>
+    <button class="time-btn" onclick="applyTime('smoke')">Solo smoke (8 TC)</button>
+  </div>
+
+  <div class="rationale" id="rationale">
+    Seleccionando el <strong>50% del tiempo</strong>: se priorizan todos los S1 + S2 del camino crítico y los flujos E2E de mayor impacto comercial. Se descartan casos de borde, negativos de métodos no soportados y checks de consistencia cross-endpoint.
+  </div>
+
+  <div class="section-label">
+    <span>Usuarios CRUD</span>
+    <span id="cnt-usr" class="badge s1">15/15</span>
+  </div>
+  <table id="tbl-usr">
+    <tr><th>ID</th><th>Caso</th><th>Tipo</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="1" class="included"><td class="tc-id">TC-USR-01</td><td>Registro exitoso todos los campos válidos</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="2" class="included"><td class="tc-id">TC-USR-02</td><td>Registro con email ya existente</td><td>Alternativo</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="5" class="included"><td class="tc-id">TC-USR-03</td><td>Registro con campos obligatorios vacíos</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="8" class="included"><td class="tc-id">TC-USR-04</td><td>Registro con email inválido (sin @)</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="3" class="included"><td class="tc-id">TC-USR-05</td><td>Obtener detalle de usuario existente</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="9" class="included"><td class="tc-id">TC-USR-06</td><td>Obtener detalle de usuario inexistente</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="12" class="included"><td class="tc-id">TC-USR-07</td><td>Obtener detalle sin parámetro email</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="4" class="included"><td class="tc-id">TC-USR-08</td><td>Actualizar usuario con datos válidos</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="10" class="included"><td class="tc-id">TC-USR-09</td><td>Actualizar usuario inexistente</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="13" class="included"><td class="tc-id">TC-USR-10</td><td>Actualizar sin campos requeridos</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="5" class="included"><td class="tc-id">TC-USR-11</td><td>Eliminar cuenta con credenciales correctas</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="6" class="included"><td class="tc-id">TC-USR-12</td><td>Eliminar cuenta con password incorrecto</td><td>Alternativo</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="11" class="included"><td class="tc-id">TC-USR-13</td><td>Eliminar usuario inexistente</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="usr" data-rank="17" class="included"><td class="tc-id">TC-USR-14</td><td>Idempotencia: eliminar cuenta ya eliminada</td><td>Borde</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="usr" data-rank="7" class="included"><td class="tc-id">TC-USR-15</td><td>Verificar persistencia post-actualización</td><td>Integración</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div class="section-label">
+    <span>Autenticación</span>
+    <span id="cnt-auth" class="badge s1">10/10</span>
+  </div>
+  <table id="tbl-auth">
+    <tr><th>ID</th><th>Caso</th><th>Tipo</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="auth" data-rank="1" class="included"><td class="tc-id">TC-AUTH-01</td><td>Login con credenciales válidas</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="auth" data-rank="2" class="included"><td class="tc-id">TC-AUTH-02</td><td>Login con email inexistente</td><td>Alternativo</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="auth" data-rank="3" class="included"><td class="tc-id">TC-AUTH-03</td><td>Login con password incorrecto</td><td>Alternativo</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="auth" data-rank="6" class="included"><td class="tc-id">TC-AUTH-04</td><td>Login sin parámetro email</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="auth" data-rank="7" class="included"><td class="tc-id">TC-AUTH-05</td><td>Login sin parámetro password</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="auth" data-rank="12" class="included"><td class="tc-id">TC-AUTH-06</td><td>Login sin body (request vacío)</td><td>Borde</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="3" data-grp="auth" data-rank="20" class="included"><td class="tc-id">TC-AUTH-07</td><td>Method not allowed: DELETE en /verifyLogin</td><td>Negativo</td><td><span class="badge s3">S3</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="auth" data-rank="15" class="included"><td class="tc-id">TC-AUTH-08</td><td>Login con email en formato vacío ""</td><td>Borde</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="3" data-grp="auth" data-rank="22" class="included"><td class="tc-id">TC-AUTH-09</td><td>Login con password en mayúsculas (case sensitivity)</td><td>Borde</td><td><span class="badge s3">S3</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="auth" data-rank="4" class="included"><td class="tc-id">TC-AUTH-10</td><td>Login luego de eliminar la cuenta</td><td>Integración</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div class="section-label">
+    <span>Productos</span>
+    <span id="cnt-prod" class="badge s1">10/10</span>
+  </div>
+  <table id="tbl-prod">
+    <tr><th>ID</th><th>Caso</th><th>Tipo</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="prod" data-rank="1" class="included"><td class="tc-id">TC-PROD-01</td><td>Listar todos los productos</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="prod" data-rank="2" class="included"><td class="tc-id">TC-PROD-02</td><td>Estructura del objeto producto completa</td><td>Contrato API</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="3" data-grp="prod" data-rank="18" class="included"><td class="tc-id">TC-PROD-03</td><td>Method not allowed: POST en /productsList</td><td>Negativo</td><td><span class="badge s3">S3</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="prod" data-rank="3" class="included"><td class="tc-id">TC-PROD-04</td><td>Buscar producto con término válido "top"</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="prod" data-rank="4" class="included"><td class="tc-id">TC-PROD-05</td><td>Buscar producto con término "tshirt"</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="prod" data-rank="8" class="included"><td class="tc-id">TC-PROD-06</td><td>Buscar sin parámetro search_product</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="prod" data-rank="9" class="included"><td class="tc-id">TC-PROD-07</td><td>Buscar término sin resultados</td><td>Alternativo</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="prod" data-rank="5" class="included"><td class="tc-id">TC-PROD-08</td><td>Buscar con caracteres especiales (SQLi)</td><td>Borde/Seguridad</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="prod" data-rank="16" class="included"><td class="tc-id">TC-PROD-09</td><td>Buscar con término muy largo (+500 chars)</td><td>Borde</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="prod" data-rank="10" class="included"><td class="tc-id">TC-PROD-10</td><td>Verificar precios son valores numéricos positivos</td><td>Contrato API</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div class="section-label">
+    <span>Marcas</span>
+    <span id="cnt-brand" class="badge s1">5/5</span>
+  </div>
+  <table id="tbl-brand">
+    <tr><th>ID</th><th>Caso</th><th>Tipo</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="brand" data-rank="1" class="included"><td class="tc-id">TC-BRAND-01</td><td>Listar todas las marcas</td><td>Camino crítico</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="brand" data-rank="5" class="included"><td class="tc-id">TC-BRAND-02</td><td>Estructura del objeto brand completa</td><td>Contrato API</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="3" data-grp="brand" data-rank="19" class="included"><td class="tc-id">TC-BRAND-03</td><td>Method not allowed: PUT en /brandsList</td><td>Negativo</td><td><span class="badge s3">S3</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="brand" data-rank="14" class="included"><td class="tc-id">TC-BRAND-04</td><td>IDs de marcas son únicos y no duplicados</td><td>Contrato API</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="brand" data-rank="13" class="included"><td class="tc-id">TC-BRAND-05</td><td>Marcas de /brandsList coinciden con /productsList</td><td>Integración</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div class="section-label">
+    <span>Flujos E2E</span>
+    <span id="cnt-e2e" class="badge s1">5/5</span>
+  </div>
+  <table id="tbl-e2e">
+    <tr><th>ID</th><th>Flujo</th><th>Cobertura</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="e2e" data-rank="1" class="included"><td class="tc-id">E2E-01</td><td>Ciclo completo vida de usuario (7 pasos)</td><td>Registro→Login→GET→PUT→GET→DELETE→Login</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="e2e" data-rank="2" class="included"><td class="tc-id">E2E-02</td><td>Búsqueda y catálogo como usuario autenticado (6 pasos)</td><td>Registro→Login→Products→Brands→Search→DELETE</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="e2e" data-rank="4" class="included"><td class="tc-id">E2E-03</td><td>Registro bloqueado por duplicado (4 pasos)</td><td>Registro→Duplicado→Login→DELETE</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="e2e" data-rank="3" class="included"><td class="tc-id">E2E-04</td><td>Sesión inválida post-eliminación (5 pasos)</td><td>Registro→DELETE→Login→GET→PUT</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="e2e" data-rank="5" class="included"><td class="tc-id">E2E-05</td><td>Consistencia de datos cross-endpoint (4 pasos)</td><td>Products→Brands→Comparar→Search</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div class="section-label">
+    <span>UI / Integración</span>
+    <span id="cnt-ui" class="badge s1">12/12</span>
+  </div>
+  <table id="tbl-ui">
+    <tr><th>ID</th><th>Caso UI</th><th>API</th><th>Sev.</th><th>Estado</th></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="1" class="included"><td class="tc-id">TC-UI-01</td><td>Formulario de registro: campos requeridos marcados</td><td>POST /createAccount</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="2" class="included"><td class="tc-id">TC-UI-02</td><td>Mensaje de éxito post-registro</td><td>POST /createAccount</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="3" class="included"><td class="tc-id">TC-UI-03</td><td>Login fallido: mensaje claro de error</td><td>POST /verifyLogin</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="4" class="included"><td class="tc-id">TC-UI-04</td><td>Catálogo carga productos del API</td><td>GET /productsList</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="5" class="included"><td class="tc-id">TC-UI-05</td><td>Barra de búsqueda: muestra resultados</td><td>POST /searchProduct</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="ui" data-rank="8" class="included"><td class="tc-id">TC-UI-06</td><td>Búsqueda sin resultados: estado vacío</td><td>POST /searchProduct</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="ui" data-rank="9" class="included"><td class="tc-id">TC-UI-07</td><td>Filtro por marcas en sidebar</td><td>GET /brandsList + productsList</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="6" class="included"><td class="tc-id">TC-UI-08</td><td>Eliminación de cuenta desde perfil</td><td>DELETE /deleteAccount</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="ui" data-rank="10" class="included"><td class="tc-id">TC-UI-09</td><td>Timeout de API: UI no se congela</td><td>Cualquier endpoint</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="2" data-grp="ui" data-rank="11" class="included"><td class="tc-id">TC-UI-10</td><td>Responsive: catálogo en mobile</td><td>GET /productsList</td><td><span class="badge s2">S2</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="7" class="included"><td class="tc-id">TC-UI-11</td><td>Persistencia de sesión post-actualización de perfil</td><td>PUT /updateAccount</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+    <tr data-sev="1" data-grp="ui" data-rank="8" class="included"><td class="tc-id">TC-UI-12</td><td>Seguridad: password no queda en localStorage</td><td>POST /verifyLogin</td><td><span class="badge s1">S1</span></td><td><span class="badge incl">Incluido</span></td></tr>
+  </table>
+
+  <div style="height:180px;position:relative;margin-bottom:8px">
+    <canvas id="distChart"></canvas>
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const configs = {
+  full:    { limit: 99, label: 'Sin restricción', desc: 'Se ejecutan los <strong>52 casos completos</strong>: todos los caminos críticos, alternativos, de borde, negatives y UI. Cobertura total del sistema.' },
+  half:    { limit: 15, label: '50% del tiempo',  desc: 'Seleccionando el <strong>50% del tiempo</strong>: se priorizan todos los S1 + S2 del camino crítico y los flujos E2E de mayor impacto comercial. Se descartan casos de borde, negativos de métodos no soportados y checks de consistencia cross-endpoint.' },
+  quarter: { limit: 8,  label: '25% del tiempo',  desc: 'Con <strong>25% del tiempo</strong>: solo camino feliz de cada módulo + E2E-01 y E2E-04. Garantiza que el flujo de negocio principal funciona. Todo lo alternativo y de borde queda pendiente.' },
+  smoke:   { limit: 4,  label: 'Solo smoke',       desc: '<strong>Smoke test (8 TC)</strong>: 1 caso crítico por módulo + E2E-01. Si alguno falla, el release está bloqueado. No valida nada más — es solo para confirmar que el sistema arranca y el flujo mínimo funciona.' }
+};
+
+let chart;
+function applyTime(mode) {
+  const { limit, label, desc } = configs[mode];
+  document.querySelectorAll('.time-btn').forEach(b => b.classList.toggle('active', b.textContent.startsWith(label) || (mode==='full'&&b.textContent.includes('Sin'))));
+  document.getElementById('rationale').innerHTML = desc;
+
+  const grpCounts = {usr:0,auth:0,prod:0,brand:0,e2e:0,ui:0};
+  const grpTotals = {usr:15,auth:10,prod:10,brand:5,e2e:5,ui:12};
+
+  let included = 0;
+  document.querySelectorAll('tr[data-rank]').forEach(row => {
+    const rank = parseInt(row.dataset.rank);
+    const grp = row.dataset.grp;
+    const inc = rank <= limit;
+    row.className = inc ? 'included' : 'excluded';
+    const badge = row.querySelector('td:last-child .badge');
+    if(badge){ badge.className = 'badge ' + (inc ? 'incl' : 'excl'); badge.textContent = inc ? 'Incluido' : 'Diferido'; }
+    if(inc){ grpCounts[grp]++; included++; }
+  });
+
+  const pcts = {};
+  for(const g in grpCounts) pcts[g] = Math.round(grpCounts[g]/grpTotals[g]*100);
+
+  const ids = ['usr','auth','prod','brand','e2e','ui'];
+  ids.forEach(g => {
+    document.getElementById('pct-'+g).textContent = pcts[g]+'%';
+    document.getElementById('bar-'+g).style.width = pcts[g]+'%';
+    const cnt = document.getElementById('cnt-'+g);
+    cnt.textContent = grpCounts[g]+'/'+grpTotals[g];
+    cnt.className = 'badge ' + (pcts[g]===100?'s1':pcts[g]>=60?'s2':pcts[g]>=30?'s3':'s4');
+  });
+
+  if(chart) {
+    chart.data.datasets[0].data = ids.map(g=>grpCounts[g]);
+    chart.data.datasets[1].data = ids.map(g=>grpTotals[g]-grpCounts[g]);
+    chart.update();
+  }
+}
+
+window.addEventListener('load', () => {
+  const ctx = document.getElementById('distChart');
+  chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Usuarios','Autenticación','Productos','Marcas','E2E','UI'],
+      datasets: [
+        { label: 'Incluidos', data: [15,10,10,5,5,12], backgroundColor: '#639922', borderRadius: 4 },
+        { label: 'Diferidos', data: [0,0,0,0,0,0],   backgroundColor: '#D3D1C7', borderRadius: 4 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { stacked: true, grid:{ display:false }, ticks:{ font:{size:11}, color:'#888780' } },
+        y: { stacked: true, grid:{ color:'rgba(0,0,0,0.06)' }, ticks:{ stepSize:5, font:{size:11}, color:'#888780' } }
+      }
+    }
+  });
+  applyTime('half');
+});
+</script>

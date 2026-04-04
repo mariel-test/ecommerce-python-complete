@@ -1,0 +1,275 @@
+{
+  "info": {
+    "name": "AutomationExercise – Colección Completa (14 APIs)",
+    "description": "Colección completa de los 14 endpoints REST reales de https://automationexercise.com/api_list\nTodos los requests retornan JSON con responseCode y message/data.\n\nVariables de entorno incluidas:\n  • base_url  → https://automationexercise.com\n  • email     → tu email de prueba\n  • password  → tu password de prueba",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "automationexercise-complete-v1"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://automationexercise.com",
+      "type": "string"
+    },
+    {
+      "key": "email",
+      "value": "testuser_{{$randomInt}}@mail.com",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "Test@1234",
+      "type": "string"
+    },
+    {
+      "key": "user_name",
+      "value": "Test User",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🛍️ Productos",
+      "description": "Endpoints para obtener y buscar productos del catálogo.",
+      "item": [
+        {
+          "name": "API 1 – GET All Products List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productsList",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "Retorna la lista completa de todos los productos disponibles.\nResponse esperado: 200 + JSON con array de productos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Contiene lista de productos', () => {",
+                  "    pm.expect(res).to.have.property('products');",
+                  "    pm.expect(res.products).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Cada producto tiene id, name y price', () => {",
+                  "    res.products.forEach(p => {",
+                  "        pm.expect(p).to.have.all.keys('id', 'name', 'price', 'brand', 'category');",
+                  "    });",
+                  "});",
+                  "",
+                  "// Guardar total de productos",
+                  "pm.collectionVariables.set('total_products', res.products.length);",
+                  "console.log('Total productos:', res.products.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 2 – POST All Products List (405 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": ""
+            },
+            "url": {
+              "raw": "{{base_url}}/api/productsList",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "productsList"
+              ]
+            },
+            "description": "POST no está soportado en este endpoint. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 5 – POST Search Product (válido)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "top",
+                  "type": "text",
+                  "description": "Término de búsqueda: top, tshirt, jean, dress, etc."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Busca productos por término. Parámetro requerido: search_product."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna resultados de búsqueda', () => {",
+                  "    pm.expect(res).to.have.property('products');",
+                  "    pm.expect(res.products).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Resultados contienen el término buscado', () => {",
+                  "    res.products.forEach(p => {",
+                  "        pm.expect(p.name.toLowerCase()).to.include('top');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('Resultados encontrados:', res.products.length);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 5b – POST Search Product (tshirt)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "tshirt",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "Búsqueda de tshirts."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('responseCode 200', () => pm.expect(res.responseCode).to.eql(200));",
+                  "pm.test('Retorna productos', () => pm.expect(res.products).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "API 6 – POST Search Product SIN parámetro (400 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "searchProduct"
+              ]
+            },
+            "description": "POST sin el parámetro search_product. Debe retornar 400 Bad Request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 400', () => {",
+                  "    pm.expect(res.responseCode).to.eql(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje indica parámetro faltante', () => {",
+                  "    pm.expect(res.message).to.include('search_product parameter is missing');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

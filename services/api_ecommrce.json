@@ -1,0 +1,724 @@
+{
+  "info": {
+    "name": "AutomationExercise – Colección Completa (14 APIs)",
+    "description": "Colección completa de los 14 endpoints REST reales de https://automationexercise.com/api_list\nTodos los requests retornan JSON con responseCode y message/data.\n\nVariables de entorno incluidas:\n  • base_url  → https://automationexercise.com\n  • email     → tu email de prueba\n  • password  → tu password de prueba",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "automationexercise-complete-v1"
+  },
+  "variable": [
+    { "key": "base_url",   "value": "https://automationexercise.com", "type": "string" },
+    { "key": "email",      "value": "testuser_{{$randomInt}}@mail.com", "type": "string" },
+    { "key": "password",   "value": "Test@1234",  "type": "string" },
+    { "key": "user_name",  "value": "Test User",  "type": "string" }
+  ],
+  "item": [
+
+    {
+      "name": "🛍️ Productos",
+      "description": "Endpoints para obtener y buscar productos del catálogo.",
+      "item": [
+
+        {
+          "name": "API 1 – GET All Products List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/productsList",
+              "host": ["{{base_url}}"],
+              "path": ["api", "productsList"]
+            },
+            "description": "Retorna la lista completa de todos los productos disponibles.\nResponse esperado: 200 + JSON con array de productos."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Contiene lista de productos', () => {",
+                  "    pm.expect(res).to.have.property('products');",
+                  "    pm.expect(res.products).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Cada producto tiene id, name y price', () => {",
+                  "    res.products.forEach(p => {",
+                  "        pm.expect(p).to.have.all.keys('id', 'name', 'price', 'brand', 'category');",
+                  "    });",
+                  "});",
+                  "",
+                  "// Guardar total de productos",
+                  "pm.collectionVariables.set('total_products', res.products.length);",
+                  "console.log('Total productos:', res.products.length);"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 2 – POST All Products List (405 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/productsList",
+              "host": ["{{base_url}}"],
+              "path": ["api", "productsList"]
+            },
+            "description": "POST no está soportado en este endpoint. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 5 – POST Search Product (válido)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "search_product",
+                  "value": "top",
+                  "type": "text",
+                  "description": "Término de búsqueda: top, tshirt, jean, dress, etc."
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": ["{{base_url}}"],
+              "path": ["api", "searchProduct"]
+            },
+            "description": "Busca productos por término. Parámetro requerido: search_product."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna resultados de búsqueda', () => {",
+                  "    pm.expect(res).to.have.property('products');",
+                  "    pm.expect(res.products).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Resultados contienen el término buscado', () => {",
+                  "    res.products.forEach(p => {",
+                  "        pm.expect(p.name.toLowerCase()).to.include('top');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('Resultados encontrados:', res.products.length);"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 5b – POST Search Product (tshirt)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "search_product", "value": "tshirt", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": ["{{base_url}}"],
+              "path": ["api", "searchProduct"]
+            },
+            "description": "Búsqueda de tshirts."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "const res = pm.response.json();",
+                  "pm.test('responseCode 200', () => pm.expect(res.responseCode).to.eql(200));",
+                  "pm.test('Retorna productos', () => pm.expect(res.products).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 6 – POST Search Product SIN parámetro (400 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            },
+            "url": {
+              "raw": "{{base_url}}/api/searchProduct",
+              "host": ["{{base_url}}"],
+              "path": ["api", "searchProduct"]
+            },
+            "description": "POST sin el parámetro search_product. Debe retornar 400 Bad Request."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 400', () => {",
+                  "    pm.expect(res.responseCode).to.eql(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje indica parámetro faltante', () => {",
+                  "    pm.expect(res.message).to.include('search_product parameter is missing');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "name": "🏷️ Marcas (Brands)",
+      "description": "Endpoints para obtener la lista de marcas.",
+      "item": [
+
+        {
+          "name": "API 3 – GET All Brands List",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/brandsList",
+              "host": ["{{base_url}}"],
+              "path": ["api", "brandsList"]
+            },
+            "description": "Retorna todas las marcas disponibles en el catálogo."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Contiene lista de marcas', () => {",
+                  "    pm.expect(res).to.have.property('brands');",
+                  "    pm.expect(res.brands).to.be.an('array').and.not.empty;",
+                  "});",
+                  "",
+                  "pm.test('Cada marca tiene id y brand', () => {",
+                  "    res.brands.forEach(b => {",
+                  "        pm.expect(b).to.have.property('id');",
+                  "        pm.expect(b).to.have.property('brand');",
+                  "    });",
+                  "});",
+                  "",
+                  "console.log('Total marcas:', res.brands.length);"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 4 – PUT All Brands List (405 esperado)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": { "mode": "raw", "raw": "" },
+            "url": {
+              "raw": "{{base_url}}/api/brandsList",
+              "host": ["{{base_url}}"],
+              "path": ["api", "brandsList"]
+            },
+            "description": "PUT no está soportado en marcas. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "name": "🔐 Autenticación (Login)",
+      "description": "Verificación de credenciales de usuario.",
+      "item": [
+
+        {
+          "name": "API 7 – POST Verify Login (credenciales válidas)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email",    "value": "{{email}}",    "type": "text" },
+                { "key": "password", "value": "{{password}}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "verifyLogin"]
+            },
+            "description": "Verifica credenciales válidas. Retorna 200 + 'User exists!'.\nNota: usar email de un usuario creado previamente con API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User exists!', () => {",
+                  "    pm.expect(res.message).to.eql('User exists!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 8 – POST Verify Login SIN email (400 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "password", "value": "{{password}}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "verifyLogin"]
+            },
+            "description": "Sin parámetro email. Debe retornar 400."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 400', () => {",
+                  "    pm.expect(res.responseCode).to.eql(400);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje indica email faltante', () => {",
+                  "    pm.expect(res.message).to.include('email or password parameter is missing');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 9 – DELETE Verify Login (405 esperado)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "verifyLogin"]
+            },
+            "description": "DELETE no soportado. Debe retornar 405."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 405', () => {",
+                  "    pm.expect(res.responseCode).to.eql(405);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: método no soportado', () => {",
+                  "    pm.expect(res.message).to.include('This request method is not supported');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 10 – POST Verify Login (credenciales inválidas, 404 esperado)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email",    "value": "noexiste@mail.com", "type": "text" },
+                { "key": "password", "value": "wrong_password",    "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/verifyLogin",
+              "host": ["{{base_url}}"],
+              "path": ["api", "verifyLogin"]
+            },
+            "description": "Credenciales inválidas. Debe retornar 404 + 'User not found!'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 404', () => {",
+                  "    pm.expect(res.responseCode).to.eql(404);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User not found!', () => {",
+                  "    pm.expect(res.message).to.eql('User not found!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+
+      ]
+    },
+
+    {
+      "name": "👤 Usuarios (CRUD)",
+      "description": "Creación, lectura, actualización y eliminación de cuentas de usuario.\nFlujo recomendado: API 11 → API 7 → API 14 → API 13 → API 12",
+      "item": [
+
+        {
+          "name": "API 11 – POST Create/Register User Account",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",         "value": "{{user_name}}",              "type": "text" },
+                { "key": "email",        "value": "{{email}}",                  "type": "text" },
+                { "key": "password",     "value": "{{password}}",               "type": "text" },
+                { "key": "title",        "value": "Mr",                         "type": "text", "description": "Mr, Mrs, Miss" },
+                { "key": "birth_date",   "value": "15",                         "type": "text" },
+                { "key": "birth_month",  "value": "6",                          "type": "text" },
+                { "key": "birth_year",   "value": "1990",                       "type": "text" },
+                { "key": "firstname",    "value": "Test",                       "type": "text" },
+                { "key": "lastname",     "value": "User",                       "type": "text" },
+                { "key": "company",      "value": "TestCorp",                   "type": "text" },
+                { "key": "address1",     "value": "123 Test Street",            "type": "text" },
+                { "key": "address2",     "value": "Suite 100",                  "type": "text" },
+                { "key": "country",      "value": "United States",              "type": "text" },
+                { "key": "zipcode",      "value": "10001",                      "type": "text" },
+                { "key": "state",        "value": "New York",                   "type": "text" },
+                { "key": "city",         "value": "New York City",              "type": "text" },
+                { "key": "mobile_number","value": "1234567890",                 "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/createAccount",
+              "host": ["{{base_url}}"],
+              "path": ["api", "createAccount"]
+            },
+            "description": "Crea una cuenta de usuario nueva. Retorna 201 + 'User created!'.\nTodos los campos son requeridos."
+          },
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Generar email único para evitar conflictos",
+                  "const ts = Date.now();",
+                  "pm.collectionVariables.set('email', `testuser_${ts}@mail.com`);",
+                  "console.log('Email generado:', pm.collectionVariables.get('email'));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 (HTTP wrapper)', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 201 (Created)', () => {",
+                  "    pm.expect(res.responseCode).to.eql(201);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User created!', () => {",
+                  "    pm.expect(res.message).to.eql('User created!');",
+                  "});",
+                  "",
+                  "console.log('Usuario creado:', pm.collectionVariables.get('email'));"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 14 – GET User Detail by Email",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/getUserDetailByEmail?email={{email}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "getUserDetailByEmail"],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "{{email}}",
+                  "description": "Email del usuario a consultar"
+                }
+              ]
+            },
+            "description": "Obtiene los detalles de un usuario por email. Ejecutar luego de API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Retorna detalle del usuario', () => {",
+                  "    pm.expect(res).to.have.property('user');",
+                  "    pm.expect(res.user).to.have.property('email');",
+                  "    pm.expect(res.user).to.have.property('name');",
+                  "});",
+                  "",
+                  "pm.test('El email coincide', () => {",
+                  "    pm.expect(res.user.email).to.eql(pm.collectionVariables.get('email'));",
+                  "});",
+                  "",
+                  "console.log('Usuario encontrado:', JSON.stringify(res.user, null, 2));"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 13 – PUT Update User Account",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "name",         "value": "Updated User",               "type": "text" },
+                { "key": "email",        "value": "{{email}}",                  "type": "text" },
+                { "key": "password",     "value": "{{password}}",               "type": "text" },
+                { "key": "title",        "value": "Mrs",                        "type": "text" },
+                { "key": "birth_date",   "value": "20",                         "type": "text" },
+                { "key": "birth_month",  "value": "12",                         "type": "text" },
+                { "key": "birth_year",   "value": "1995",                       "type": "text" },
+                { "key": "firstname",    "value": "Updated",                    "type": "text" },
+                { "key": "lastname",     "value": "Name",                       "type": "text" },
+                { "key": "company",      "value": "NewCorp",                    "type": "text" },
+                { "key": "address1",     "value": "456 New Street",             "type": "text" },
+                { "key": "address2",     "value": "",                           "type": "text" },
+                { "key": "country",      "value": "Canada",                     "type": "text" },
+                { "key": "zipcode",      "value": "A1B2C3",                     "type": "text" },
+                { "key": "state",        "value": "Ontario",                    "type": "text" },
+                { "key": "city",         "value": "Toronto",                    "type": "text" },
+                { "key": "mobile_number","value": "9876543210",                 "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/updateAccount",
+              "host": ["{{base_url}}"],
+              "path": ["api", "updateAccount"]
+            },
+            "description": "Actualiza los datos de un usuario existente. Retorna 200 + 'User updated!'.\nEjecutar luego de API 11."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: User updated!', () => {",
+                  "    pm.expect(res.message).to.eql('User updated!');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+
+        {
+          "name": "API 12 – DELETE User Account",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "email",    "value": "{{email}}",    "type": "text" },
+                { "key": "password", "value": "{{password}}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deleteAccount",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deleteAccount"]
+            },
+            "description": "Elimina una cuenta de usuario. Retorna 200 + 'Account deleted!'.\nEjecutar al final del flujo (después de API 11, 14 y 13)."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200 OK', () => pm.response.to.have.status(200));",
+                  "",
+                  "const res = pm.response.json();",
+                  "",
+                  "pm.test('responseCode es 200', () => {",
+                  "    pm.expect(res.responseCode).to.eql(200);",
+                  "});",
+                  "",
+                  "pm.test('Mensaje: Account deleted!', () => {",
+                  "    pm.expect(res.message).to.eql('Account deleted!');",
+                  "});",
+                  "",
+                  "// Limpiar variable de email",
+                  "pm.collectionVariables.unset('email');",
+                  "console.log('Cuenta eliminada exitosamente.');"
+                ]
+              }
+            }
+          ]
+        }
+
+      ]
+    }
+
+  ]
+}
