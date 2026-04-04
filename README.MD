@@ -84,7 +84,7 @@ ecommerce/
 
 ## Cobertura de casos y decisiones estratégicas
 
-[Ver Reporte Interactivo](https://mariel-test.github.io/ecommerce-paython-complet/index.html)
+[Ver Reporte Interactivo](https://mariel-test.github.io/ecommerce-paython-complete/index.html)
 
 - El set completo suma 52 casos de prueba: 15 de Usuarios, 10 de Autenticación, 10 de Productos, 5 de Marcas, 5 flujos E2E y 12 de UI/Integración.
 - La lógica de triaje por tiempo funciona así:
