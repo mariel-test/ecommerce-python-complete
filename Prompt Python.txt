@@ -1,0 +1,241 @@
+﻿Eres un qa autometion sr en python playwright debes generar test case para la siguiente estructura y casos definidos. Las apis son las adjuntas 
+
+
+## Contexto del proyecto
+
+
+# Stack tecnológico
+- Proyecto: ecommerce-python-complete
+ - API Bajo: https://automationexercise.com/login
+- Python 3.11+
+- pytest + pytest-playwright
+- pydantic v2 (para models)
+- faker (para datos dummy)
+- requests
+
+
+# Lo que ya existe y NO debes modificar
+services/api_client.py ya está construido con esta estructura:
+- Clase APIClient con métodos: get, post, put, delete
+- Helpers privados: _build_url, _log_response
+- Assertion helpers: assert_status, assert_response_code, assert_message
+- Usa requests.Session() y un Enum ContentType (FORM / JSON)
+- La fixture api_client está en conftest.py con scope="session"
+
+
+Estructura de archivos relevante:
+
+
+ecommerce/
+├── conftest.py
+├── requirements.txt
+├── .env.example
+├── pytest.ini
+├── run_tests_open_report.py
+├── services/
+│   ├── __init__.py
+│   ├── api_client.py
+│   ├── api_ecommrce.json NO TOCAR
+│   ├── api_products.json
+│   ├── api_brands.json
+│   ├── api_login.json
+│   └── api_user_crud.json
+├── pages/
+│   ├── __init__.py
+│   ├── base_page.py
+│   └── home_page.py
+├── tests/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   ├── test_api_products.py
+│   │   └── test_example.py borrar
+        ── test_api_login.py  ← CREAR
+│   └── ui/
+│       ├── __init__.py
+│       └── test_ui_home.py
+├── fixtures/
+├── models/
+#Cobertura de casos a automatizar: Cubrir estos escenarios:
+
+
+
+
+ID
+	Caso
+	Tipo
+	TC-USR-01
+	Registro exitoso todos los campos válidos
+	Camino crítico
+	TC-USR-02
+	Registro con email ya existente
+	Alternativo
+	TC-USR-03
+	Registro con campos obligatorios vacíos
+	Alternativo
+	TC-USR-04
+	Registro con email inválido (sin @)
+	Alternativo
+	TC-USR-05
+	Obtener detalle de usuario existente
+	Camino crítico
+	TC-USR-06
+	Obtener detalle de usuario inexistente
+	Alternativo
+	TC-USR-07
+	Obtener detalle sin parámetro email
+	Alternativo
+	TC-USR-08
+	Actualizar usuario con datos válidos
+	Camino crítico
+	TC-USR-09
+	Actualizar usuario inexistente
+	Alternativo
+	TC-USR-10
+	Actualizar sin campos requeridos
+	Alternativo
+	TC-USR-11
+	Eliminar cuenta con credenciales correctas
+	Camino crítico
+	TC-USR-12
+	Eliminar cuenta con password incorrecto
+	Alternativo
+	TC-USR-13
+	Eliminar usuario inexistente
+	Alternativo
+	TC-USR-14
+	Idempotencia: eliminar cuenta ya eliminada
+	Borde
+	TC-USR-15
+	Verificar persistencia post-actualización
+	Integración
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Tarea 1 — Archivo de datos dummy
+Crea el archivo fixtures/user_factory.py que contenga:
+- Función make_register_user(**overrides) → UserRegister
+- Función make_login_user(**overrides) → UserLogin
+- Función make_invalid_users() → list[dict] con casos negativos:
+  email inválido, password vacío, email vacío, campos faltantes
+- Usar Faker con locale en_US
+- Emails únicos con uuid4 + dominio @yopmail.com
+- Explicame cada función antes de escribirla
+
+
+# Tarea 2 — Models
+Crea models/user.py con:
+- UserRegister(BaseModel) con todos los campos del endpoint
+  POST /api/createAccount de automationexercise.com
+- UserLogin(BaseModel) con email y password
+- UserResponse(BaseModel) para parsear respuestas
+- Validadores con @field_validator donde tenga sentido
+- Explicame cada model antes de escribirlo
+
+
+# Tarea 3 — Tests del APIClient
+Crea tests/api/test_api_login.py que testee los end point segun cobertura de casos
+1. API 7 – POST Verify Login (credenciales válidas)
+   * Método: POST
+   * Parámetros: email y password válidos
+   * Respuesta esperada: 200 + "User exists!"
+2. API 8 – POST Verify Login SIN email (400 esperado)
+   * Método: POST
+   * Parámetros: Solo password (falta email)
+   * Respuesta esperada: 400 + mensaje de parámetro faltante
+3. API 9 – DELETE Verify Login (405 esperado)
+   * Método: DELETE
+   * Parámetros: Ninguno
+   * Respuesta esperada: 405 + "This request method is not supported"
+4. API 10 – POST Verify Login (credenciales inválidas, 404 esperado)
+   * Método: POST
+   * Parámetros: email y password inválidos
+   * Respuesta esperada: 404 + "User not found!"
+
+
+
+
+Reglas para los tests:
+- Usar patrón AAA (Arrange, Act, Assert) con comentarios # Arrange etc.
+- Cada test debe tener docstring explicando qué valida
+- Usar la fixture api_client inyectada por pytest
+- Usar los models de models/user.py
+- Usar make_login_user() y make_invalid_users() de fixtures/user_factory.py
+- Agrupar en clase TestAPILogin
+
+
+
+
+Explicame cada test antes de escribirlo.
+
+
+# Reglas generales que debes seguir siempre
+- Nunca uses magic strings, siempre constantes o enums
+- Type hints en todas las funciones
+- Docstrings en clases y funciones públicas
+- Nombres en snake_case para variables y funciones
+- Nombres en PascalCase para clases
+- No dupliques lógica (principio DRY)
+- Si algo no está claro, preguntame antes de asumir
+
+
+# Estructura de archivos del proyecto
+ecommerce/
+├── conftest.py
+├── requirements.txt
+├── pytest.ini
+├── services/
+│   ├── __init__.py
+│   └── api_client.py  ← YA EXISTE, NO TOCAR
+├── pages/
+│   ├── __init__.py
+│   └── base_page.py
+├── tests/
+│   ├── api/
+│   │   ├── __init__.py
+│   │   └── test_api_login.py  ← CREAR
+│   └── ui/
+│       └── __init__.py
+├── fixtures/
+│   └── user_factory.py  ← CREAR
+└── models/
+    └── user.py  ← CREAR
+
+
+# Formato de respuesta esperado
+Para cada archivo:
+1. Explicación breve de qué hace y por qué está estructurado así
+2. El código completo
+3. Ejemplo de cómo se usa desde un test
+
+
+1. Cada llamada genera un usuario nuevo, no uses lru_cache.
+   Los tests necesitan emails únicos para evitar duplicados.
+
+
+2. Password siempre fijo "Test@1234" para que sea predecible
+   en los tests. Email con formato: f"qa_{uuid4()[:8]}@yopmail.com"
+   El resto de los campos puede ser Faker por defecto.
+
+
+3. Hardcodeada está bien. Que devuelva una lista fija de dicts
+   con los casos negativos más comunes.
+
+
+Procedé con la Tarea 1.
+Empezá por la Tarea 1 y esperá mi confirmación antes de continuar
+con la Tarea 2.

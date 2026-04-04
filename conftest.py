@@ -1,6 +1,7 @@
 import os
 import pytest
 from dotenv import load_dotenv
+from services.api_client import ApiClient
 
 load_dotenv()
 
@@ -20,3 +21,8 @@ def ui_base_url() -> str:
 @pytest.fixture
 def credentials() -> dict:
     return {"email": EMAIL, "password": PASSWORD}
+
+@pytest.fixture(scope="session")
+def api_client() -> ApiClient:
+    """API client fixture with session scope."""
+    return ApiClient(BASE_URL)

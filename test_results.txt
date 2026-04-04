@@ -1,0 +1,22 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /home/mariel/MyProject/ecommerce-python-complete/venv/bin/python
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.17.0-19-generic-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'base-url': '2.1.0', 'playwright': '0.7.2', 'Faker': '40.12.0', 'metadata': '3.1.1', 'html': '4.2.0'}, 'Base URL': ''}
+rootdir: /home/mariel/MyProject/ecommerce-python-complete
+configfile: pytest.ini
+plugins: base-url-2.1.0, playwright-0.7.2, Faker-40.12.0, metadata-3.1.1, html-4.2.0
+collecting ... collected 10 items
+
+tests/api/test_api_login.py::TestAPILogin::test_api_7_post_verify_login_valid_credentials PASSED [ 10%]
+tests/api/test_api_login.py::TestAPILogin::test_api_8_post_verify_login_missing_email PASSED [ 20%]
+tests/api/test_api_login.py::TestAPILogin::test_api_9_delete_verify_login_method_not_allowed PASSED [ 30%]
+tests/api/test_api_login.py::TestAPILogin::test_api_10_post_verify_login_invalid_credentials PASSED [ 40%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user0] PASSED [ 50%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user1] PASSED [ 60%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user2] PASSED [ 70%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user3] PASSED [ 80%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user4] PASSED [ 90%]
+tests/api/test_api_login.py::TestAPILogin::test_login_with_invalid_email_formats[invalid_user5] PASSED [100%]
+
+- Generated html report: file:///home/mariel/MyProject/ecommerce-python-complete/python-report/report.html -
+============================== 10 passed in 4.31s ==============================
