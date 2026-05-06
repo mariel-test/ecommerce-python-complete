@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 .venv/
 venv/
+tests/ui/user_data.txt

@@ -2,7 +2,7 @@
 
 import pytest
 from services.api_client import ApiClient
-from fixtures.user_factory import make_login_user, make_invalid_users
+from fixtures.user_factory import make_login_user, make_invalid_users, make_register_user
 from models.user import UserLogin
 
 
@@ -10,6 +10,38 @@ class TestAPILogin:
     """Test suite for /api/verifyLogin endpoint."""
 
     API_ENDPOINT = "verifyLogin"
+    CREATE_ENDPOINT = "createAccount"
+    DELETE_ENDPOINT = "deleteAccount"
+
+    @pytest.mark.smoke
+    @pytest.mark.happy_path
+    def test_auth_01_login_valid_credentials(self, api_client: ApiClient) -> None:
+        """TC-AUTH-01: POST /verifyLogin with existing user — responseCode 200, "User exists!"."""
+        user = make_register_user()
+        api_client.post(self.CREATE_ENDPOINT, data=user.model_dump(mode="json", exclude_none=True))
+
+        response = api_client.post(self.API_ENDPOINT, data={"email": str(user.email), "password": user.password})
+        body = response.json()
+
+        assert response.status_code == 200
+        assert body["responseCode"] == 200
+        assert body["message"] == "User exists!"
+
+        api_client.delete(self.DELETE_ENDPOINT, data={"email": str(user.email), "password": user.password})
+
+    @pytest.mark.happy_path
+    def test_auth_10_login_after_account_deleted(self, api_client: ApiClient) -> None:
+        """TC-AUTH-10: POST /verifyLogin after DELETE — responseCode 404, "User not found!"."""
+        user = make_register_user()
+        api_client.post(self.CREATE_ENDPOINT, data=user.model_dump(mode="json", exclude_none=True))
+        api_client.delete(self.DELETE_ENDPOINT, data={"email": str(user.email), "password": user.password})
+
+        response = api_client.post(self.API_ENDPOINT, data={"email": str(user.email), "password": user.password})
+        body = response.json()
+
+        assert response.status_code == 200
+        assert body["responseCode"] == 404
+        assert body["message"] == "User not found!"
 
     def test_api_7_post_verify_login_valid_credentials(self, api_client: ApiClient) -> None:
         """

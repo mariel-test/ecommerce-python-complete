@@ -33,27 +33,71 @@ Debe aparecer libatk-1.0.so.0 en el output. Luego correr los tests normalmente.
 
 ## Ejecutar los tests
 
+### Por nivel de triaje
+
 ```bash
-# Todos los tests
-pytest tests/ -v
+# Smoke — 8 TC críticos, 1 por módulo + E2E completo. Si algo falla, el release no sale.
+pytest -m smoke -v -s
 
-# Solo pruebas de API
-pytest tests/api/ -v
+# 25% — 13 TC de camino feliz por módulo + E2E-01 y E2E-04.
+pytest -m happy_path -v -s
 
-# Solo pruebas de UI
+# Suite completa — 27 TC (API + UI + E2E)
+pytest -v -s
+```
+
+### Solo API o solo UI
+
+```bash
+# Solo pruebas de API (con logs de request/response en consola)
+pytest tests/api/ -v -s
+
+# Solo pruebas de UI (headless, sin abrir browser)
 pytest tests/ui/ -v
 
-# Generar reporte HTML de pytest
+# Solo pruebas E2E
+pytest tests/e2e/ -v -s
+```
+
+### Ver tests en el browser (UI + Integración)
+
+```bash
+# Tests de UI visibles en browser — velocidad normal
+pytest tests/ui/ --headed -v
+
+# Con pausa entre acciones para seguir cada paso
+pytest tests/ui/ --headed --slowmo=800 -v
+
+# Flujo smoke autenticado (login → búsquedas → marcas → logout)
+pytest tests/ui/test_ui_integration.py::test_ui_smoke_authenticated_flow --headed --slowmo=600 -v -s
+
+# Smoke completo (API + UI) con browser visible y logs de API
+pytest -m smoke --headed --slowmo=600 -v -s
+```
+
+> **Nota:** El flag `-s` muestra los logs de request/response de API en la consola.
+> El usuario de UI se guarda en `tests/ui/user_data.txt` (local, no se commitea).
+> Si es el primer run, el usuario se crea automáticamente. En runs siguientes se reutilizan las mismas credenciales.
+
+### Reporte HTML
+
+```bash
+# Generar reporte y abrirlo automáticamente en el browser
+python3 run_tests_open_report.py
+
+# Solo generar reporte (sin abrir)
 pytest --html=python-report/report.html --self-contained-html
 
-# Ejecutar tests y abrir el reporte automáticamente
-python3 run_tests_open_report.py
+# Abrir el reporte existente
+xdg-open python-report/report.html          # Linux
+open python-report/report.html              # Mac
+start python-report/report.html             # Windows
 ```
 
 ## Reportes disponibles
 
-- `python-report/report.html` – reporte HTML generado por `pytest-html`.
-- `ecommerce_covarege_test_case.html` – reporte de cobertura de casos y decisiones estratégicas.
+- `python-report/report.html` — reporte HTML de ejecución generado por `pytest-html`.
+- `ecommerce_coverage_test_case.html` — reporte interactivo de cobertura y decisiones estratégicas.
 
 ## Estructura del proyecto
 
@@ -65,29 +109,35 @@ ecommerce/
 ├── pytest.ini
 ├── run_tests_open_report.py
 ├── services/
-│   ├── __init__.py
-│   ├── api_client.py
-│   ├── api_ecommrce.json
+│   ├── api_client.py          ← cliente HTTP con logging automático de requests
 │   ├── api_products.json
 │   ├── api_brands.json
 │   ├── api_login.json
 │   └── api_user_crud.json
 ├── pages/
-│   ├── __init__.py
 │   ├── base_page.py
-│   └── home_page.py
+│   ├── home_page.py           ← catálogo + búsqueda de productos
+│   └── login_page.py          ← login y verificación de error
+├── fixtures/
+│   └── user_factory.py        ← generación de datos de usuario
+├── models/
+│   └── user.py
 ├── tests/
 │   ├── api/
-│   │   ├── __init__.py
-│   │   ├── test_api_products.py
-│   │   └── test_example.py
+│   │   ├── test_api_users.py      ← TC-USR-01,05,08,11,15  🔥⚡
+│   │   ├── test_api_login.py      ← TC-AUTH-01,10 + tests alternativos
+│   │   ├── test_api_products.py   ← TC-PROD-01,04,05       🔥⚡
+│   │   └── test_api_brands.py     ← TC-BRAND-01            🔥⚡
+│   ├── e2e/
+│   │   └── test_e2e_flows.py      ← E2E-01,04              🔥⚡
 │   └── ui/
-│       ├── __init__.py
-│       └── test_ui_home.py
-├── fixtures/
-├── models/
+│       ├── conftest.py            ← fixture test_user (data-driven desde user_data.txt)
+│       ├── test_ui_home.py        ← título de home page
+│       └── test_ui_integration.py ← TC-UI-03,04,05 + smoke autenticado 🔥⚡
 └── python-report/
 ```
+
+> 🔥 Smoke (8 TC) · ⚡ Happy path 25% (13 TC)
 
 > Los endpoints de Postman se han dividido en 4 archivos JSON por funcionalidad:
 > `api_products.json`, `api_brands.json`, `api_login.json` y `api_user_crud.json`.
