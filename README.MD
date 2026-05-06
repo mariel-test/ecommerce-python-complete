@@ -12,6 +12,24 @@ pip install -r requirements.txt
 cp .env.example .env
 # Editar .env con tus datos
 ```
+## Setup en CodeSpace de GitHUb
+
+```
+Troubleshooting: Chromium no levanta en GitHub Codespaces
+Si al correr los tests de UI aparece este error:
+error while loading shared libraries: libatk-1.0.so.0: cannot open shared object file
+Es porque el contenedor del Codespace no tiene las dependencias del sistema que Chromium necesita. Instalarse con:
+
+´´´bash
+sudo apt-get install -y libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libpango-1.0-0 libcairo2 libasound2t64
+
+Nota: No usar apt-get update antes de este comando si el repo de yarn está configurado en el Codespace, ya que el update falla por un error de firma GPG y corta la ejecución antes de llegar al install.
+
+Verificar que quedó instalado:
+bashldconfig -p | grep libatk
+Debe aparecer libatk-1.0.so.0 en el output. Luego correr los tests normalmente.
+
+```
 
 ## Ejecutar los tests
 
