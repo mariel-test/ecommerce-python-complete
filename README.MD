@@ -1,135 +1,300 @@
 # Ecommerce Automation – UI + API
 
-Este proyecto combina pruebas de API y pruebas de UI para un sitio de ecommerce.
+Framework de automatización de pruebas para [automationexercise.com](https://automationexercise.com) usando **pytest**, **Playwright** y **requests**. Cubre API REST, flujos E2E y UI con Chromium.
 
-## Setup
+---
+
+## Índice
+
+1. [Setup local](#setup-local)
+2. [Setup en GitHub Codespaces](#setup-en-github-codespaces)
+3. [Docker](#docker)
+4. [Ejecutar tests — local](#ejecutar-tests--local)
+5. [Ejecutar tests — Docker](#ejecutar-tests--docker)
+6. [GitHub Actions CI](#github-actions-ci)
+7. [Reportes](#reportes)
+8. [Estructura del proyecto](#estructura-del-proyecto)
+9. [Cobertura y decisiones estratégicas](#cobertura-y-decisiones-estratégicas)
+10. [Catálogo completo de casos](#catálogo-completo-de-casos-de-prueba)
+
+---
+
+## Setup local
 
 ```bash
-cd /home/mariel/MyProject/ecommerce
+# 1. Clonar y entrar al proyecto
+git clone git@github.com:mariel-test/ecommerce-python-complete.git
+cd ecommerce-python-complete
+
+# 2. Crear entorno virtual e instalar dependencias
 python3 -m venv venv
-source venv/bin/activate
+source venv/bin/activate          # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-cp .env.example .env
-# Editar .env con tus datos
-```
-## Setup en CodeSpace de GitHUb
 
+# 3. Instalar Chromium para Playwright
+playwright install --with-deps chromium
 ```
-Troubleshooting: Chromium no levanta en GitHub Codespaces
+
+Las URLs y credenciales tienen valores por defecto en `conftest.py`. Si necesitás sobreescribirlos creá un archivo `.env`:
+
+```ini
+BASE_URL=https://automationexercise.com/api
+UI_BASE_URL=https://automationexercise.com
+EMAIL=tu@email.com
+PASSWORD=TuPassword
+```
+
+---
+
+## Setup en GitHub Codespaces
+
 Si al correr los tests de UI aparece este error:
+```
 error while loading shared libraries: libatk-1.0.so.0: cannot open shared object file
-Es porque el contenedor del Codespace no tiene las dependencias del sistema que Chromium necesita. Instalarse con:
+```
 
-´´´bash
-sudo apt-get install -y libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 libpango-1.0-0 libcairo2 libasound2t64
+Instalar las dependencias del sistema que necesita Chromium:
 
-Nota: No usar apt-get update antes de este comando si el repo de yarn está configurado en el Codespace, ya que el update falla por un error de firma GPG y corta la ejecución antes de llegar al install.
+```bash
+sudo apt-get install -y \
+  libatk1.0-0 libatk-bridge2.0-0 libcups2 libxcomposite1 \
+  libxdamage1 libxfixes3 libxrandr2 libgbm1 libxkbcommon0 \
+  libpango-1.0-0 libcairo2 libasound2t64
+```
+
+> **Nota:** No correr `apt-get update` antes de este comando si el repo de yarn está configurado en el Codespace — el update falla por un error de firma GPG.
 
 Verificar que quedó instalado:
-bashldconfig -p | grep libatk
-Debe aparecer libatk-1.0.so.0 en el output. Luego correr los tests normalmente.
 
+```bash
+ldconfig -p | grep libatk    # debe aparecer libatk-1.0.so.0
 ```
 
-## Ejecutar los tests
+---
+
+## Docker
+
+El proyecto incluye un `Dockerfile` y `docker-compose.yml` para correr los tests en un entorno reproducible sin instalar nada localmente (salvo Docker o Podman).
+
+### Construcción de la imagen
+
+```bash
+docker build -t ecommerce-tests .
+```
+
+### Servicios disponibles en docker-compose
+
+| Servicio | Comando equivalente |
+|---|---|
+| `smoke` | `pytest -m smoke -v -s --tb=short` |
+| `happy-path` | `pytest -m happy_path -v -s --tb=short` |
+| `api` | `pytest tests/api/ tests/e2e/ -v -s --tb=short` |
+| `ui` | `pytest tests/ui/ -v --tb=short` |
+| `all` | `pytest -v -s --tb=short` |
+
+> El reporte HTML se monta automáticamente en `./python-report/` del host.
+
+### Con Podman (en lugar de Docker)
+
+Si usás Podman como backend, levantá el socket antes de usar `docker compose`:
+
+```bash
+systemctl --user start podman.socket
+systemctl --user enable podman.socket    # para que arranque automáticamente
+
+# Luego usar docker compose normalmente
+DOCKER_HOST=unix:///run/user/1000/podman/podman.sock docker compose run --rm smoke
+```
+
+O correr directamente con `podman run` (no necesita socket):
+
+```bash
+podman run --rm \
+  -e BASE_URL=https://automationexercise.com/api \
+  -e UI_BASE_URL=https://automationexercise.com \
+  -v $(pwd)/python-report:/app/python-report \
+  ecommerce-tests pytest -m smoke -v -s --tb=short
+```
+
+---
+
+## Ejecutar tests — local
 
 ### Por nivel de triaje
 
 ```bash
-# Smoke — 8 TC críticos, 1 por módulo + E2E completo. Si algo falla, el release no sale.
+# Smoke — 8 TC críticos. Si algo falla, el release no sale.
 pytest -m smoke -v -s
 
 # 25% — 13 TC de camino feliz por módulo + E2E-01 y E2E-04.
 pytest -m happy_path -v -s
 
-# Suite completa — 27 TC (API + UI + E2E)
+# Suite completa
 pytest -v -s
 ```
 
-### Solo API o solo UI
+### Por módulo
 
 ```bash
-# Solo pruebas de API (con logs de request/response en consola)
+# Solo API (con logs de request/response en consola)
 pytest tests/api/ -v -s
 
-# Solo pruebas de UI (headless, sin abrir browser)
+# Solo UI (headless, sin abrir browser)
 pytest tests/ui/ -v
 
-# Solo pruebas E2E
+# Solo E2E
 pytest tests/e2e/ -v -s
 ```
 
-### Ver tests en el browser (UI + Integración)
+### Ver tests en el browser
 
 ```bash
-# Tests de UI visibles en browser — velocidad normal
+# UI visible en browser — velocidad normal
 pytest tests/ui/ --headed -v
 
 # Con pausa entre acciones para seguir cada paso
 pytest tests/ui/ --headed --slowmo=800 -v
 
 # Flujo smoke autenticado (login → búsquedas → marcas → logout)
-pytest tests/ui/test_ui_integration.py::test_ui_smoke_authenticated_flow --headed --slowmo=600 -v -s
+pytest tests/ui/test_ui_integration.py::test_ui_smoke_authenticated_flow \
+  --headed --slowmo=600 -v -s
 
 # Smoke completo (API + UI) con browser visible y logs de API
 pytest -m smoke --headed --slowmo=600 -v -s
 ```
 
-> **Nota:** El flag `-s` muestra los logs de request/response de API en la consola.
-> El usuario de UI se guarda en `tests/ui/user_data.txt` (local, no se commitea).
-> Si es el primer run, el usuario se crea automáticamente. En runs siguientes se reutilizan las mismas credenciales.
+> **`-s`** muestra los logs de request/response de la API en la consola.
+> El usuario de UI se guarda en `tests/ui/user_data.txt` (local, no commiteable). Si es el primer run se crea automáticamente; en runs siguientes se reutilizan las mismas credenciales.
 
-### Reporte HTML
+---
+
+## Ejecutar tests — Docker
 
 ```bash
-# Generar reporte y abrirlo automáticamente en el browser
+# Smoke
+docker compose run --rm smoke
+
+# Happy path (25%)
+docker compose run --rm happy-path
+
+# API + E2E
+docker compose run --rm api
+
+# UI headless
+docker compose run --rm ui
+
+# Suite completa
+docker compose run --rm all
+```
+
+Variables de entorno con valores custom:
+
+```bash
+EMAIL=otro@email.com PASSWORD=OtraPass docker compose run --rm smoke
+```
+
+---
+
+## GitHub Actions CI
+
+El workflow `.github/workflows/ci.yml` corre automáticamente en cada push a `main` y en cada Pull Request.
+
+### Qué hace
+
+| Evento | Qué ejecuta |
+|---|---|
+| Push a `main` | Smoke + Happy-path + API tests → publica reporte en GitHub Pages |
+| Pull Request | Smoke + Happy-path + API tests → sube reporte como artefacto |
+| Manual (`workflow_dispatch`) | Podés elegir qué suite correr desde la pestaña Actions |
+
+### Dónde ver los resultados
+
+- **Logs en tiempo real:** `github.com/mariel-test/ecommerce-python-complete/actions`
+- **Reportes descargables:** en cada run → *Artifacts* → `test-reports-N`
+- **Reportes publicados:** [https://mariel-test.github.io/ecommerce-python-complete/](https://mariel-test.github.io/ecommerce-python-complete/)
+
+### Configurar GitHub Pages (una sola vez)
+
+Para que el reporte se publique automáticamente en Pages:
+
+1. Ir al repo → **Settings** → **Pages**
+2. En *Source* seleccionar **"GitHub Actions"**
+3. Guardar — el próximo push a `main` publicará el reporte
+
+### Variables opcionales en GitHub
+
+En Settings → Secrets and variables → Actions:
+
+| Nombre | Tipo | Uso |
+|---|---|---|
+| `BASE_URL` | Variable | URL base de la API |
+| `UI_BASE_URL` | Variable | URL base de la UI |
+| `EMAIL` | Variable | Email del usuario de prueba |
+| `PASSWORD` | Secret | Contraseña del usuario de prueba |
+
+Si no se configuran, el workflow usa los valores por defecto de automationexercise.com.
+
+---
+
+## Reportes
+
+```bash
+# Generar reporte HTML y abrirlo automáticamente
 python3 run_tests_open_report.py
 
-# Solo generar reporte (sin abrir)
+# Solo generar
 pytest --html=python-report/report.html --self-contained-html
 
 # Abrir el reporte existente
-xdg-open python-report/report.html          # Linux
-open python-report/report.html              # Mac
-start python-report/report.html             # Windows
+xdg-open python-report/report.html      # Linux
+open python-report/report.html          # Mac
+start python-report/report.html         # Windows
 ```
 
-## Reportes disponibles
+Reportes disponibles:
 
-- `python-report/report.html` — reporte HTML de ejecución generado por `pytest-html`.
-- `ecommerce_coverage_test_case.html` — reporte interactivo de cobertura y decisiones estratégicas.
+- `python-report/report.html` — resultado de la última ejecución local
+- `ecommerce_coverage_test_case.html` — mapa interactivo de cobertura y decisiones estratégicas
+- GitHub Pages — reportes del último CI: [smoke](https://mariel-test.github.io/ecommerce-python-complete/smoke.html) · [happy-path](https://mariel-test.github.io/ecommerce-python-complete/happy_path.html) · [api](https://mariel-test.github.io/ecommerce-python-complete/api.html)
+
+---
 
 ## Estructura del proyecto
 
 ```
-ecommerce/
+ecommerce-python-complete/
+├── Dockerfile
+├── docker-compose.yml
+├── .dockerignore
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 ← CI: smoke + happy-path + API + deploy Pages
 ├── conftest.py
 ├── requirements.txt
-├── .env.example
 ├── pytest.ini
 ├── run_tests_open_report.py
 ├── services/
-│   ├── api_client.py          ← cliente HTTP con logging automático de requests
+│   ├── api_client.py              ← cliente HTTP con logging automático de requests
 │   ├── api_products.json
 │   ├── api_brands.json
 │   ├── api_login.json
 │   └── api_user_crud.json
 ├── pages/
 │   ├── base_page.py
-│   ├── home_page.py           ← catálogo + búsqueda de productos
-│   └── login_page.py          ← login y verificación de error
+│   ├── home_page.py               ← catálogo + búsqueda de productos
+│   └── login_page.py              ← login y verificación de error
 ├── fixtures/
-│   └── user_factory.py        ← generación de datos de usuario
+│   └── user_factory.py            ← generación de datos de usuario con Faker
 ├── models/
 │   └── user.py
 ├── tests/
 │   ├── api/
-│   │   ├── test_api_users.py      ← TC-USR-01,05,08,11,15  🔥⚡
-│   │   ├── test_api_login.py      ← TC-AUTH-01,10 + tests alternativos
-│   │   ├── test_api_products.py   ← TC-PROD-01,04,05       🔥⚡
-│   │   └── test_api_brands.py     ← TC-BRAND-01            🔥⚡
+│   │   ├── test_api_users.py      ← TC-USR-01,05,08,11,15   🔥⚡
+│   │   ├── test_api_login.py      ← TC-AUTH-01,10 + alternos
+│   │   ├── test_api_products.py   ← TC-PROD-01,04,05        🔥⚡
+│   │   └── test_api_brands.py     ← TC-BRAND-01             🔥⚡
 │   ├── e2e/
-│   │   └── test_e2e_flows.py      ← E2E-01,04              🔥⚡
+│   │   └── test_e2e_flows.py      ← E2E-01, E2E-04          🔥⚡
 │   └── ui/
 │       ├── conftest.py            ← fixture test_user (data-driven desde user_data.txt)
 │       ├── test_ui_home.py        ← título de home page
@@ -139,27 +304,18 @@ ecommerce/
 
 > 🔥 Smoke (8 TC) · ⚡ Happy path 25% (13 TC)
 
-> Los endpoints de Postman se han dividido en 4 archivos JSON por funcionalidad:
-> `api_products.json`, `api_brands.json`, `api_login.json` y `api_user_crud.json`.
+---
 
-## Convenciones principales
-
-- `tests/api/` para pruebas de servicios REST.
-- `tests/ui/` para pruebas de interfaz con Playwright.
-- `pages/` para Page Objects de UI.
-- `services/api_client.py` para la lógica común de llamadas HTTP.
-- `conftest.py` para fixtures reutilizables como `api_base_url`, `ui_base_url` y credenciales.
-
-## Cobertura de casos y decisiones estratégicas
+## Cobertura y decisiones estratégicas
 
 [Ver Reporte Interactivo](https://mariel-test.github.io/ecommerce-python-complete/ecommerce_coverage_test_case.html)
 
-- El set completo suma 52 casos de prueba: 15 de Usuarios, 10 de Autenticación, 10 de Productos, 5 de Marcas, 5 flujos E2E y 12 de UI/Integración.
+- El set completo suma **52 casos de prueba**: 15 de Usuarios, 10 de Autenticación, 10 de Productos, 5 de Marcas, 5 flujos E2E y 12 de UI/Integración.
 - La lógica de triaje por tiempo funciona así:
-  - Con tiempo al 50% (30 TC) ejecutás todos los S1 más los S2 del camino crítico y los 5 flujos E2E. Es el punto de equilibrio ideal: cubrís el 100% de lo que puede bloquear un release y el ~85% del riesgo de negocio real.
-  - Con tiempo al 25% (16 TC) bajás a solo el camino feliz de cada módulo más E2E-01 y E2E-04. Esto confirma que el flujo de conversión principal está vivo, pero deja expuesto el manejo de errores.
-  - El smoke de 8 TC es la red de seguridad mínima antes de un deploy: 1 caso por módulo + el E2E completo de ciclo de vida. Si algo falla acá, el release no sale.
-- Regla de oro para el triaje: los S1 no se negocian. Los que se pueden diferir sin demasiado riesgo son los casos de método no soportado (405), los de borde con inputs muy largos o caracteres raros, y los de consistencia cross-endpoint, porque esos suelen ser más estables una vez que el camino crítico pasa.
+  - Con tiempo al **50% (30 TC)** ejecutás todos los S1 más los S2 del camino crítico y los 5 flujos E2E. Es el punto de equilibrio ideal: cubrís el 100% de lo que puede bloquear un release y el ~85% del riesgo de negocio real.
+  - Con tiempo al **25% (16 TC)** bajás a solo el camino feliz de cada módulo más E2E-01 y E2E-04. Esto confirma que el flujo de conversión principal está vivo, pero deja expuesto el manejo de errores.
+  - El **smoke de 8 TC** es la red de seguridad mínima antes de un deploy: 1 caso por módulo + el E2E completo de ciclo de vida. Si algo falla acá, el release no sale.
+- **Regla de oro para el triaje:** los S1 no se negocian. Los que se pueden diferir sin demasiado riesgo son los casos de método no soportado (405), los de borde con inputs muy largos o caracteres raros, y los de consistencia cross-endpoint, porque esos suelen ser más estables una vez que el camino crítico pasa.
 
 ---
 
