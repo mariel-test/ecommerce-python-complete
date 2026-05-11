@@ -1,0 +1,33 @@
+version: "3.9"
+
+x-base: &base
+  build: .
+  environment:
+    BASE_URL: ${BASE_URL:-https://automationexercise.com/api}
+    UI_BASE_URL: ${UI_BASE_URL:-https://automationexercise.com}
+    EMAIL: ${EMAIL:-testuser@mail.com}
+    PASSWORD: ${PASSWORD:-Test@1234}
+  volumes:
+    - ./python-report:/app/python-report
+
+services:
+
+  smoke:
+    <<: *base
+    command: pytest -m smoke -v -s --tb=short
+
+  happy-path:
+    <<: *base
+    command: pytest -m happy_path -v -s --tb=short
+
+  api:
+    <<: *base
+    command: pytest tests/api/ tests/e2e/ -v -s --tb=short
+
+  ui:
+    <<: *base
+    command: pytest tests/ui/ -v --tb=short
+
+  all:
+    <<: *base
+    command: pytest -v -s --tb=short

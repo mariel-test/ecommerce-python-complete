@@ -1,0 +1,132 @@
+name: CI — Test Suite & Report
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "Suite a ejecutar"
+        type: choice
+        default: smoke
+        options: [smoke, happy_path, api, all]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  # ── Job 1: correr los tests ──────────────────────────────────────────────
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    env:
+      BASE_URL:    ${{ vars.BASE_URL    || 'https://automationexercise.com/api' }}
+      UI_BASE_URL: ${{ vars.UI_BASE_URL || 'https://automationexercise.com' }}
+      EMAIL:       ${{ vars.EMAIL       || 'testuser@mail.com' }}
+      PASSWORD:    ${{ secrets.PASSWORD || 'Test@1234' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright + Chromium
+        run: playwright install --with-deps chromium
+
+      - name: "🔥 Smoke tests (8 TC — bloqueantes)"
+        run: >
+          pytest -m smoke -v -s --tb=short
+          --html=python-report/smoke.html --self-contained-html
+
+      - name: "⚡ Happy-path tests (25% triage)"
+        if: always()
+        run: >
+          pytest -m happy_path -v -s --tb=short
+          --html=python-report/happy_path.html --self-contained-html
+
+      - name: "🔌 API + E2E tests"
+        if: always()
+        run: >
+          pytest tests/api/ tests/e2e/ -v -s --tb=short
+          --html=python-report/api.html --self-contained-html
+
+      - name: Upload reports artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: python-report/
+          retention-days: 30
+
+  # ── Job 2: publicar reporte en GitHub Pages (solo main) ──────────────────
+  deploy-report:
+    name: Publish Report to Pages
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Download reports
+        uses: actions/download-artifact@v4
+        with:
+          name: test-reports-${{ github.run_number }}
+          path: ./site
+
+      - name: Generate index page
+        run: |
+          cat > ./site/index.html << 'EOF'
+          <!DOCTYPE html>
+          <html lang="es">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Test Reports — ecommerce-python-complete</title>
+            <style>
+              body { font-family: sans-serif; max-width: 640px; margin: 48px auto; padding: 0 16px; color: #333; }
+              h1 { font-size: 1.4rem; margin-bottom: 4px; }
+              p  { color: #666; font-size: .9rem; margin-top: 0; }
+              a  { display: flex; align-items: center; gap: 10px; padding: 14px 16px;
+                   margin: 10px 0; background: #f6f8fa; border: 1px solid #e1e4e8;
+                   border-radius: 8px; text-decoration: none; color: #0366d6; font-weight: 500; }
+              a:hover { background: #eaf2ff; }
+              .badge { font-size: .8rem; background: #fff; border: 1px solid #ccc;
+                       border-radius: 4px; padding: 2px 6px; color: #555; }
+            </style>
+          </head>
+          <body>
+            <h1>🧪 Test Reports</h1>
+            <p>ecommerce-python-complete · automationexercise.com</p>
+            <a href="smoke.html">🔥 Smoke Tests <span class="badge">8 TC</span></a>
+            <a href="happy_path.html">⚡ Happy Path Tests <span class="badge">25%</span></a>
+            <a href="api.html">🔌 API + E2E Tests</a>
+          </body>
+          </html>
+          EOF
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4

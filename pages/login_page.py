@@ -8,7 +8,7 @@ class LoginPage(BasePage):
     LOGIN_ERROR = "p:has-text('Your email or password is incorrect!')"
 
     def load(self, base_url: str) -> None:
-        self.page.goto(f"{base_url}/login", wait_until="load")
+        self.page.goto(f"{base_url}/login", wait_until="domcontentloaded", timeout=60_000)
 
     def login(self, email: str, password: str) -> None:
         self.page.fill(self.LOGIN_EMAIL, email)

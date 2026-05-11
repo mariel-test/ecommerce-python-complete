@@ -11,8 +11,8 @@ class HomePage(BasePage):
 
     def search(self, term: str) -> None:
         self.page.fill(self.SEARCH_INPUT, term)
-        self.page.click(self.SEARCH_BUTTON)
-        self.page.wait_for_load_state("domcontentloaded")
+        self.page.click(self.SEARCH_BUTTON, no_wait_after=True)
+        self.page.wait_for_load_state("domcontentloaded", timeout=60_000)
 
     def get_product_count(self) -> int:
         return self.page.locator(self.PRODUCT_CARDS).count()
